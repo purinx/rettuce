@@ -1,3 +1,5 @@
+import Dependencies._
+
 ThisBuild / scalaVersion := "2.13.2"
 ThisBuild / version      := "1.0-SNAPSHOT"
 ThisBuild / organization := "higherkindpud"
@@ -14,7 +16,7 @@ lazy val root = (project in file("."))
     name := "playtter",
     commonSettings,
     libraryDependencies += guice,
-    libraryDependencies += "org.scalatestplus.play" %% "scalatestplus-play" % "5.0.0" % Test,
-    libraryDependencies += "com.dripower" %% "play-circe" % "2712.0",
-    libraryDependencies += "redis.clients" % "jedis" % "3.3.0"
+    libraryDependencies += scalaTest % Test,
+    libraryDependencies ++= circe,
+    libraryDependencies += jedis
   )
