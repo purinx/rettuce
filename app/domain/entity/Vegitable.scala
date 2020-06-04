@@ -1,3 +1,3 @@
-package domain.entity.Vegirable
+package domain.entity.Vegitable
 
-case class Vagitable(name: String, price: Int)
+case class Vegetable(name: String, price: Int)
