@@ -3,3 +3,4 @@
 # https://www.playframework.com/documentation/latest/ScalaRouting
 # ~~~~
 GET /apple     controllers.VegetableController.apple()
+POST /banana   controllers.VegetableController.banana()
