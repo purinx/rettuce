@@ -9,7 +9,7 @@ import play.api.mvc._
   * application's home page.
   */
 @Singleton
-class HomeController @Inject() (val controllerComponents: ControllerComponents) extends BaseController {
+class VegetableController @Inject() (val controllerComponents: ControllerComponents) extends BaseController {
 
   def apple() =
     Action { implicit request: Request[AnyContent] =>
