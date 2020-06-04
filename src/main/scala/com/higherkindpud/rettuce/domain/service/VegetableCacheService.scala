@@ -1,5 +1,3 @@
 package domain.service.vegetableCacheService
 
-class VegetableCacheService {
-
-}
+class VegetableCacheService {}
