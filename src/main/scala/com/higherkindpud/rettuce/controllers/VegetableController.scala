@@ -11,7 +11,7 @@ import play.api.mvc._
 @Singleton
 class HomeController @Inject()(val controllerComponents: ControllerComponents) extends BaseController {
 
-  def users() = Action { implicit request: Request[AnyContext] =>
+  def apple() = Action { implicit request: Request[AnyContent] =>
     Ok()
   }
 }
