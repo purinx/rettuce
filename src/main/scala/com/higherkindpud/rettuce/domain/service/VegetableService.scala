@@ -4,7 +4,7 @@ import domain.entity.Vegetable
 import domain.repository.VegetableRepository
 
 class VegetableService(
-  vegetableRepository: VegetableRepository
+    vegetableRepository: VegetableRepository
 ) {
 
   def getByName(name: String): Option[Vegetable] = vegetableRepository.getByName(name)
