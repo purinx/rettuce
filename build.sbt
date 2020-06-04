@@ -12,6 +12,7 @@ lazy val commonSettings = Seq(
 
 lazy val root = (project in file("."))
   .enablePlugins(PlayScala)
+  .disablePlugins(PlayLayoutPlugin)
   .settings(
     name := "playtter",
     commonSettings,
