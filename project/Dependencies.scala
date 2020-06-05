@@ -14,4 +14,5 @@ object Dependencies {
     "com.softwaremill.macwire" %% "util"       % "2.3.6",
     "com.softwaremill.macwire" %% "proxy"      % "2.3.6"
   )
+  lazy val pureconfig = "com.github.pureconfig" %% "pureconfig" % "0.12.3"
 }
