@@ -6,6 +6,7 @@ import akka.util.ByteString
 
 import io.circe.Json
 import com.higherkindpud.rettuce.controller.util.CirceWritable._
+import com.higherkindpud.rettuce.domain.entity.Vegetable
 
 /**
   * This controller creates an `Action` to handle HTTP requests to the
@@ -14,11 +15,12 @@ import com.higherkindpud.rettuce.controller.util.CirceWritable._
 @Singleton
 class VegetableController @Inject() (val controllerComponents: ControllerComponents) extends BaseController {
 
-  import HomeController._
+  import VegetableController._
 
   def apple() =
     Action { implicit request: Request[AnyContent] =>
-      Ok("")
+      val json: Json = vegetableEncoder(Vegetable("apple", 500))
+      Ok(json)
     }
 
   def banana() =
@@ -33,11 +35,11 @@ class VegetableController @Inject() (val controllerComponents: ControllerCompone
     }
 }
 
-object HomeController {
+object VegetableController {
 
   import io.circe.Encoder
   import io.circe.generic.semiauto.deriveEncoder
   case class Response(str: String)
-  val responseEncoder: Encoder[Response] = deriveEncoder
-
+  val responseEncoder: Encoder[Response]   = deriveEncoder
+  val vegetableEncoder: Encoder[Vegetable] = deriveEncoder
 }
