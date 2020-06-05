@@ -16,7 +16,7 @@ case class Redis(
     port: Int
 )
 
-case class AppConfig(
+case class RettuceConfig(
     play: Play,
     redis: Redis
 )
