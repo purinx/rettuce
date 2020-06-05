@@ -9,6 +9,7 @@ class VegetableService(
 
   def getByName(name: String): Option[Vegetable] = vegetableRepository.getByName(name)
 
+  def save(vegetable: Vegetable): Unit = vegetableRepository.save(vegetable)
   // TODO sonota no iroiro na domain wo tukatta kijutu wo suru
 
 }

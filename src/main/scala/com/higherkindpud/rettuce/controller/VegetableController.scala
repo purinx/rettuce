@@ -3,17 +3,20 @@ package com.higherkindpud.rettuce.controller
 import javax.inject._
 import play.api.mvc._
 import akka.util.ByteString
-
-import io.circe.Json
+import io.circe.{Decoder, Json, parser}
 import com.higherkindpud.rettuce.controller.util.CirceWritable._
 import com.higherkindpud.rettuce.domain.entity.Vegetable
+import com.higherkindpud.rettuce.domain.service.VegetableService
 
 /**
   * This controller creates an `Action` to handle HTTP requests to the
   * application's home page.
   */
 @Singleton
-class VegetableController @Inject() (val controllerComponents: ControllerComponents) extends BaseController {
+class VegetableController @Inject() (
+    val controllerComponents: ControllerComponents,
+    val vegetableService: VegetableService
+) extends BaseController {
 
   import VegetableController._
 
@@ -33,13 +36,24 @@ class VegetableController @Inject() (val controllerComponents: ControllerCompone
 
       Ok(json)
     }
+
+  def save() =
+    Action(parse.byteString) { implicit request: Request[ByteString] =>
+      val vegetable: Vegetable = decodeJsonToVegetable(request.body.utf8String)
+      vegetableService.save(vegetable)
+
+      Ok(vegetableEncoder(vegetable))
+    }
 }
 
 object VegetableController {
 
   import io.circe.Encoder
-  import io.circe.generic.semiauto.deriveEncoder
+  import io.circe.generic.semiauto.{deriveEncoder, deriveDecoder}
   case class Response(str: String)
-  val responseEncoder: Encoder[Response]   = deriveEncoder
-  val vegetableEncoder: Encoder[Vegetable] = deriveEncoder
+  val responseEncoder: Encoder[Response]            = deriveEncoder
+  val vegetableEncoder: Encoder[Vegetable]          = deriveEncoder
+  implicit val vegetableDecoder: Decoder[Vegetable] = deriveDecoder
+  val decodeJsonToVegetable: String => Vegetable =
+    parser.parse(_).flatMap(_.as[Vegetable]).getOrElse(throw new RuntimeException("decode error"))
 }

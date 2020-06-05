@@ -6,4 +6,6 @@ trait VegetableRepository {
 
   def getByName(name: String): Option[Vegetable]
 
+  def save(vegetable: Vegetable): Unit
+
 }

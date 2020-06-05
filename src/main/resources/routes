@@ -4,3 +4,4 @@
 # ~~~~
 GET /apple     com.higherkindpud.rettuce.controller.VegetableController.apple()
 POST /banana   com.higherkindpud.rettuce.controller.VegetableController.banana()
+POST /vagetables com.higherkindpud.rettuce.controller.VegetableController.save()

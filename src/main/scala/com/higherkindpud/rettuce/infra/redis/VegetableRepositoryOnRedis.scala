@@ -23,4 +23,5 @@ class VegetableRepositoryOnRedis(
 
   override def getByName(name: String): Option[Vegetable] = vegetableCache.get(name)
 
+  override def save(vegetable: Vegetable) = vegetableCache.mset(Map(vegetable.name -> vegetable))
 }
