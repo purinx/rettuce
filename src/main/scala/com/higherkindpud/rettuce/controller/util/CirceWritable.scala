@@ -1,4 +1,4 @@
-package controllers.util
+package com.higherkindpud.rettuce.controller.util
 
 import play.api.http.{ContentTypeOf, Writeable}
 import akka.util.ByteString

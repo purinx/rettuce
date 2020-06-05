@@ -1,11 +1,11 @@
-package controllers
+package com.higherkindpud.rettuce.controller
 
 import javax.inject._
 import play.api.mvc._
 import akka.util.ByteString
 
 import io.circe.Json
-import controllers.util.CirceWritable._
+import com.higherkindpud.rettuce.controller.util.CirceWritable._
 
 /**
   * This controller creates an `Action` to handle HTTP requests to the

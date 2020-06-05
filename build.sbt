@@ -14,7 +14,7 @@ lazy val root = (project in file("."))
   .enablePlugins(PlayScala)
   .disablePlugins(PlayLayoutPlugin)
   .settings(
-    name := "playtter",
+    name := "rettuce",
     commonSettings,
     libraryDependencies += guice,
     libraryDependencies += scalaTest % Test,

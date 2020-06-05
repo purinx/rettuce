@@ -1,6 +1,6 @@
-package domain.repository
+package com.higherkindpud.rettuce.domain.repository
 
-import domain.entity.Vegetable
+import com.higherkindpud.rettuce.domain.entity.Vegetable
 
 trait VegetableRepository {
 

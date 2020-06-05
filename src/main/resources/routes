@@ -2,5 +2,5 @@
 # This file defines all application routes (Higher priority routes first)
 # https://www.playframework.com/documentation/latest/ScalaRouting
 # ~~~~
-GET /apple     controllers.VegetableController.apple()
-POST /banana   controllers.VegetableController.banana()
+GET /apple     com.higherkindpud.rettuce.controller.VegetableController.apple()
+POST /banana   com.higherkindpud.rettuce.controller.VegetableController.banana()

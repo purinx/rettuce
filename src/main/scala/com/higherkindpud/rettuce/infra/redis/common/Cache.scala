@@ -1,4 +1,4 @@
-package infra.redis.common
+package com.higherkindpud.rettuce.infra.redis.common
 
 trait Cache[K, V] {
   self =>

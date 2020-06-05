@@ -1,4 +1,4 @@
-package infra.redis.common
+package com.higherkindpud.rettuce.infra.redis.common
 
 import redis.clients.jedis.{Jedis, JedisPool}
 import scala.jdk.CollectionConverters._
