@@ -11,7 +11,6 @@ import play.api.mvc._
 import redis.clients.jedis.JedisPool
 
 trait RettuceComponents extends Module with SystemComponents {
-
   //domain
   lazy val pool: JedisPool   = new JedisPool("127.0.0.1", 16379)
   lazy val defaultRedisCache = wire[DefaultRedisCache]
@@ -19,7 +18,7 @@ trait RettuceComponents extends Module with SystemComponents {
   lazy val vegetableService = wire[VegetableService]
 
   //controller
-  lazy val vegetableController: BaseController = wire[VegetableController]
+  lazy val vegetableController: AbstractController = wire[VegetableController]
 
   //repository
   lazy val vegetableRepository: VegetableRepository = wire[VegetableRepositoryOnRedis]

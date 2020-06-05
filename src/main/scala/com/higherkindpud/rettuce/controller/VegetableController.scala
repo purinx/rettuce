@@ -14,9 +14,9 @@ import com.higherkindpud.rettuce.domain.service.VegetableService
   */
 @Singleton
 class VegetableController(
-    _controllerComponents: ControllerComponents,
+    controllerComponents: ControllerComponents,
     vegetableService: VegetableService
-) extends BaseController {
+) extends AbstractController(controllerComponents) {
 
   import VegetableController._
 
@@ -52,7 +52,6 @@ class VegetableController(
       Ok(vegetableEncoder(vegetable))
     }
 
-  override protected def controllerComponents: ControllerComponents = _controllerComponents
 }
 
 object VegetableController {
