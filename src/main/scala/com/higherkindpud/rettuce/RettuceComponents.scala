@@ -45,7 +45,7 @@ class RettuceApplicationBase(context: Context)
 
   lazy val router: Router = {
     // add the prefix string in local scope for the Routes constructor
-    // val prefix: String                          = "/"
+    val prefix: String = "/"
 
     wire[Routes]
   }
