@@ -44,6 +44,13 @@ class VegetableController @Inject() (
 
       Ok(vegetableEncoder(vegetable))
     }
+
+  def getByName(name: String) =
+    Action { implicit request: Request[AnyContent] =>
+      val vegetable = vegetableService.getByName(name).getOrElse(throw new RuntimeException("not found"))
+
+      Ok(vegetableEncoder(vegetable))
+    }
 }
 
 object VegetableController {
