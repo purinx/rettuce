@@ -39,10 +39,34 @@ class VegetableController(
 
   def save() =
     Action(parse.byteString) { implicit request: Request[ByteString] =>
-      val vegetable: Vegetable = decodeJsonToVegetable(request.body.utf8String)
-      vegetableService.save(vegetable)
+      val vegetableOpt: Option[Vegetable] = decodeJsonToVegetable(request.body.utf8String)
 
-      Ok(vegetableEncoder(vegetable))
+      // 1
+      vegetableOpt
+        .map { vegetable =>
+          vegetableService.save(vegetable)
+          Ok(vegetableEncoder(vegetable))
+        }
+        .getOrElse(BadRequest(""))
+
+      // 2
+      vegetableOpt match {
+        case None => BadRequest("")
+        case Some(vegetable) => {
+          vegetableService.save(vegetable)
+          Ok(vegetableEncoder(vegetable))
+        }
+      }
+
+      // 3
+      val a: Either[Result, Result] = for {
+        vegetable <- vegetableOpt.toRight(BadRequest(""))
+      } yield {
+        vegetableService.save(vegetable)
+        Ok(vegetableEncoder(vegetable))
+      }
+      a.merge
+
     }
 
   def getByName(name: String) =
@@ -62,6 +86,6 @@ object VegetableController {
   val responseEncoder: Encoder[Response]            = deriveEncoder
   val vegetableEncoder: Encoder[Vegetable]          = deriveEncoder
   implicit val vegetableDecoder: Decoder[Vegetable] = deriveDecoder
-  val decodeJsonToVegetable: String => Vegetable =
-    parser.parse(_).flatMap(_.as[Vegetable]).getOrElse(throw new RuntimeException("decode error"))
+  val decodeJsonToVegetable: String => Option[Vegetable] =
+    parser.parse(_).flatMap(_.as[Vegetable]).toOption
 }
