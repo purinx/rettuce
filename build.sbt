@@ -16,8 +16,8 @@ lazy val root = (project in file("."))
   .settings(
     name := "rettuce",
     commonSettings,
-    libraryDependencies += guice,
     libraryDependencies += scalaTest % Test,
     libraryDependencies ++= circe,
-    libraryDependencies += jedis
+    libraryDependencies += jedis,
+    libraryDependencies ++= macwire
   )

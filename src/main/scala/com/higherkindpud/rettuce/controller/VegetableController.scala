@@ -13,10 +13,10 @@ import com.higherkindpud.rettuce.domain.service.VegetableService
   * application's home page.
   */
 @Singleton
-class VegetableController @Inject() (
-    val controllerComponents: ControllerComponents,
-    val vegetableService: VegetableService
-) extends BaseController {
+class VegetableController(
+    controllerComponents: ControllerComponents,
+    vegetableService: VegetableService
+) extends AbstractController(controllerComponents) {
 
   import VegetableController._
 
@@ -51,6 +51,7 @@ class VegetableController @Inject() (
 
       Ok(vegetableEncoder(vegetable))
     }
+
 }
 
 object VegetableController {
