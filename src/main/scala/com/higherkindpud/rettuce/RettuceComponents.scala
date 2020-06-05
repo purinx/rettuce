@@ -9,6 +9,8 @@ import com.softwaremill.macwire.wire
 // import play.api.inject.Module
 import redis.clients.jedis.JedisPool
 
+import com.typesafe.config.ConfigFactory
+
 import play.api.mvc._
 import play.api.ApplicationLoader.Context
 import play.api.routing.Router
@@ -17,6 +19,8 @@ import router.Routes
 import _root_.controllers.AssetsComponents
 import play.filters.HttpFiltersComponents
 import play.api._
+import play.api.http.{HttpErrorHandler, JsonHttpErrorHandler}
+import router.Routes
 
 class RettuceApplicationLoader extends ApplicationLoader {
   def load(context: Context) = {
@@ -30,14 +34,19 @@ class RettuceApplicationBase(context: Context)
     with AssetsComponents
     with RettuceComponents {
 
+  // implicit lazy val typesafeConfig = ConfigFactory.load()
+
   // set up logger
   LoggerConfigurator(context.environment.classLoader).foreach {
     _.configure(context.environment, context.initialConfiguration, Map.empty)
   }
 
+  override lazy val httpErrorHandler: HttpErrorHandler = new JsonHttpErrorHandler(environment, sourceMapper)
+
   lazy val router: Router = {
     // add the prefix string in local scope for the Routes constructor
-    // val prefix: String = "/"
+    // val prefix: String                          = "/"
+
     wire[Routes]
   }
 
