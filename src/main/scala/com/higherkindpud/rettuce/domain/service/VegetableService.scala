@@ -1,7 +1,7 @@
-package domain.service
+package com.higherkindpud.rettuce.domain.service
 
-import domain.entity.Vegetable
-import domain.repository.VegetableRepository
+import com.higherkindpud.rettuce.domain.entity.Vegetable
+import com.higherkindpud.rettuce.domain.repository.VegetableRepository
 
 class VegetableService(
     vegetableRepository: VegetableRepository
