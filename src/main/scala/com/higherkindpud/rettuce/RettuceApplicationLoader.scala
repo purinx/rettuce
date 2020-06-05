@@ -34,7 +34,8 @@ class RettuceApplicationBase(context: Context)
     // add the prefix string in local scope for the Routes constructor
 
     val prefix: String = "/"
-    // unusedでwarnが出るけど消したら動かない(;clean ;compileしたらコンパイル落ちる)ので気を付ける
+    // unusedでwarnが出るけど消したら動かないので気を付ける
+    // (;clean ;compileしたらコンパイル落ちることが確認できる)
     // TODO: build.sbtでいい感じにwarn出ないように
 
     wire[Routes]
