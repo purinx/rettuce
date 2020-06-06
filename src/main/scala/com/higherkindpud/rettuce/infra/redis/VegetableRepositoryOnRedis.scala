@@ -1,5 +1,6 @@
 package com.higherkindpud.rettuce.infra.redis
 
+import cats.Id
 import com.higherkindpud.rettuce.domain.entity.Vegetable
 import com.higherkindpud.rettuce.domain.repository.VegetableRepository
 import com.higherkindpud.rettuce.infra.redis.common.{Cache, DefaultRedisCache}
@@ -9,7 +10,7 @@ import io.circe.generic.semiauto._
 
 class VegetableRepositoryOnRedis(
     defaultRedisCache: DefaultRedisCache
-) extends VegetableRepository {
+) extends VegetableRepository[Id] {
 
   private implicit val circeDecoder: Decoder[Vegetable] = deriveDecoder
   private implicit val circeEncoder: Encoder[Vegetable] = deriveEncoder
