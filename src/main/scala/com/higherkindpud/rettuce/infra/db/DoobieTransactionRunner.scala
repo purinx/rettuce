@@ -1,20 +1,19 @@
 package com.higherkindpud.rettuce.infra.db
 
-import cats.effect.IO
-import com.higherkindpud.rettuce.domain.repository.TransactionRunner
-import doobie.free.ConnectionIO
-import doobie.hikari.HikariTransactor
 import doobie.implicits._
+import cats.effect.{IO, Resource}
+import com.higherkindpud.rettuce.domain.repository.ResourceIORunner
+import doobie.free.ConnectionIO
 import doobie.util.transactor.Transactor
 
 import scala.concurrent.Future
 
-class DoobieTransactionRunner(
-  transactor: Transactor[HikariTransactor[IO]]
-) extends TransactionRunner[ConnectionIO] {
+class DoobieResourceIORunner(
+    transactor: Resource[IO, Transactor[IO]]
+) extends ResourceIORunner[ConnectionIO] {
 
   override def run[A](io: ConnectionIO[A]): Future[A] = {
-    io.transact(transactor).unsafeRunAsync
+    transactor.use(xa => io.transact(xa)).unsafeToFuture()
   }
 
 }

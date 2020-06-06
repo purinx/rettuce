@@ -4,7 +4,7 @@ import cats.Id
 import com.higherkindpud.rettuce.domain.entity.Vegetable
 import com.higherkindpud.rettuce.domain.repository.VegetableRepository
 import com.higherkindpud.rettuce.infra.redis.common.Cache
-import com.higherkindpud.rettuce.infra.redis.DefaultRedisCache
+import com.higherkindpud.rettuce.infra.redis.common.DefaultRedisCache
 import io.circe._
 import io.circe.syntax._
 import io.circe.generic.semiauto._
@@ -23,7 +23,9 @@ class VegetableRepositoryOnRedis(
     .withHash("vegetables")
     .mapValue(decoder, encoder)
 
-  override def getByName(name: String): Option[Vegetable] = vegetableCache.get(name)
+  // override def getByName(name: String): Option[Vegetable] = vegetableCache.get(name)
 
-  override def save(vegetable: Vegetable) = vegetableCache.set(vegetable.name, vegetable)
+  // override def save(vegetable: Vegetable) = vegetableCache.set(vegetable.name, vegetable)
+
+  override def getAll(): List[Vegetable] = ???
 }

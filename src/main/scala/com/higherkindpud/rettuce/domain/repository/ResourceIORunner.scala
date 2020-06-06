@@ -1,6 +1,8 @@
 package com.higherkindpud.rettuce.domain.repository
 
-trait TransactionRunner[F[_]] {
+import scala.concurrent.Future
+
+trait ResourceIORunner[F[_]] {
 
   def run[A](io: F[A]): Future[A]
 

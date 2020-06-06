@@ -4,5 +4,5 @@ package com.higherkindpud.rettuce.domain.entity
 case class Report(
     id: Int,
     name: String,
-    quantity: Int,
+    quantity: Int
 )

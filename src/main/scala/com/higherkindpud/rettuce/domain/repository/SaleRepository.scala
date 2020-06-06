@@ -8,7 +8,7 @@ trait SaleRepository[F[_]] {
 
   def fetchAll: F[List[Sale]]
 
-  def save()
+  def save(sale: Sale): F[Unit]
 }
 
 object SaleRepository {

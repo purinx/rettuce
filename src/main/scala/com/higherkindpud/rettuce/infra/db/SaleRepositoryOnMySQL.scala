@@ -8,9 +8,9 @@ import doobie.free.ConnectionIO
 
 class SaleRepositoryOnMySQL extends SaleRepository[ConnectionIO] {
 
-  def fetchAll(): ConnectionIO[List[Sale]] = ???
+  def fetchAll(): ConnectionIO[List[Sale]]                 = ???
   def findByName(name: String): ConnectionIO[Option[Sale]] = ???
-  def save(sale: Sale): ConnectionIO[Unit] = ???
+  def save(sale: Sale): ConnectionIO[Unit]                 = ???
 }
 
 object SaleRepository {
