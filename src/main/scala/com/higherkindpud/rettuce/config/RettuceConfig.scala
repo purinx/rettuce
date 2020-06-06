@@ -15,5 +15,6 @@ case class MySQLConfig(
     port: Int,
     dbname: String,
     username: String,
-    password: String
+    password: String,
+    threads: Int
 )
