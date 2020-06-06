@@ -13,7 +13,7 @@ trait SaleRepository[F[_]] {
 
   def create(createRequest: CreateRequest): F[Unit]
 
-  def bulkInsert(reports: List[Report]): F[Unit]
+  def bulkInsert(sales: List[Sale]): F[Unit]
 }
 
 object SaleRepository {

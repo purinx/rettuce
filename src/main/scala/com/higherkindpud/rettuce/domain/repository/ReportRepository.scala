@@ -4,9 +4,9 @@ import com.higherkindpud.rettuce.domain.entity.{Report, Summary}
 
 trait ReportRepository[F[_]] {
 
-  def getByName(name: String): F[Report]
+  def getByName(name: String): F[Option[Report]]
 
-  def settle: F[List[Report]]
+  def getAll: F[List[Report]]
 
   def save(report: Report): F[Unit]
 
