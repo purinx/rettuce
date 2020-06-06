@@ -1,29 +1,29 @@
 package com.higherkindpud.rettuce.infra.db
 
+import java.util.concurrent.{ExecutorService, Executors}
+
 import cats.effect.{Blocker, IO, Resource}
-import com.higherkindpud.rettuce.config.{MySQLConfig}
-import doobie.ExecutionContexts
+import com.higherkindpud.rettuce.config.MySQLConfig
 import doobie.hikari.HikariTransactor
 
 import scala.concurrent.ExecutionContext
 
 trait MySQLComponents {
-  import MySQLComponents._
 
   def mySQLConfig: MySQLConfig
-  def ec: ExecutionContext
-  def dataBaseExecutionContext: DataBaseExecutionContext = new DataBaseExecutionContext(ec)
-  implicit lazy val cs                                   = IO.contextShift(dataBaseExecutionContext)
+  private lazy val executorService: ExecutorService = Executors.newFixedThreadPool(mySQLConfig.threads)
+  private lazy val executionContext = ExecutionContext.fromExecutorService(executorService)
+  private implicit lazy val cs                                   = IO.contextShift(executionContext)
   val transactor: Resource[IO, HikariTransactor[IO]] =
     for {
-      ce <- ExecutionContexts.fixedThreadPool[IO](32) // our connect EC
+      // ce <- ExecutionContexts.fixedThreadPool[IO](mySQLConfig.threads) // our connect EC
       be <- Blocker[IO] // our blocking EC
       xa <- HikariTransactor.newHikariTransactor[IO](
         "com.mysql.cj.jdbc.Driver",                                     // driver classname
         s"jdbc:mysql://${mySQLConfig.host}:${mySQLConfig.port}/${mySQLConfig.dbname}", // connect URL
         mySQLConfig.username,                                                // username
         mySQLConfig.password,                                                // password
-        ce,                                                             // await connection here
+        executionContext,                                                             // await connection here
         be                                                              // execute JDBC operations here
       )
     } yield xa
