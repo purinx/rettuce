@@ -16,7 +16,6 @@ import com.higherkindpud.rettuce.domain.repository.VegetableRepository
 import com.higherkindpud.rettuce.domain.repository.ResourceIORunner
 import doobie.free.connection.ConnectionIO
 
-
 trait RettuceComponents extends MySQLComponents with RedisComponents {
   lazy val config: RettuceConfig =
     ConfigSource.fromConfig(ConfigFactory.load()).loadOrThrow[RettuceConfig]
@@ -24,7 +23,7 @@ trait RettuceComponents extends MySQLComponents with RedisComponents {
   lazy val redisConfig = config.redis
 
   //domain
-  lazy val vegetableService: VegetableService[Nothing] = wire[VegetableService[Id]]
+  lazy val vegetableService: VegetableService[Any] = wire[VegetableService[Id]]
   //controller
   def controllerComponents: ControllerComponents
   lazy val vegetableController: VegetableController = wire[VegetableController]

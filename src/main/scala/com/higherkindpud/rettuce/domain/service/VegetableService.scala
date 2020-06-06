@@ -5,7 +5,7 @@ import com.higherkindpud.rettuce.domain.repository.{ResourceIORunner, VegetableR
 
 import scala.concurrent.Future
 
-class VegetableService[-F[_]](
+class VegetableService[+F[_]](
     vegetableRepository: VegetableRepository[F],
     resourceIORunner: ResourceIORunner[F]
 ) {

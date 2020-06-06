@@ -15,7 +15,7 @@ import com.higherkindpud.rettuce.domain.service.VegetableService
 @Singleton
 class VegetableController(
     controllerComponents: ControllerComponents,
-    vegetableService: VegetableService[Nothing]
+    vegetableService: VegetableService[Any]
 ) extends AbstractController(controllerComponents) {
 
   import VegetableController._
