@@ -8,7 +8,7 @@ services:
       - "./data/redis:/data"
   flyway:
     image: flyway/flyway
-    command: -url=jdbc:mysql://db -schemas=myschema -user=root -password=P@ssw0rd -connectRetries=60 migrate
+    command: -url=jdbc:mysql://db -schemas=flyway_schemas -user=root -password=rettuce -connectRetries=60 migrate
     volumes:
       - .:/flyway/sql
     depends_on:
@@ -16,7 +16,7 @@ services:
   db:
     image: mysql
     environment:
-      - MYSQL_ROOT_PASSWORD=P@ssw0rd
+      - MYSQL_ROOT_PASSWORD=rettuce
     command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
     ports:
       - 3306:3306
