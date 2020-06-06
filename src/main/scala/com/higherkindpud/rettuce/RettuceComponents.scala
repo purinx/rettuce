@@ -14,6 +14,8 @@ import pureconfig.generic.auto._
 import cats.Id
 import com.higherkindpud.rettuce.domain.repository.VegetableRepository
 import com.higherkindpud.rettuce.domain.repository.ResourceIORunner
+import doobie.free.connection.ConnectionIO
+
 
 trait RettuceComponents extends MySQLComponents with RedisComponents {
   lazy val config: RettuceConfig =
@@ -22,16 +24,12 @@ trait RettuceComponents extends MySQLComponents with RedisComponents {
   lazy val redisConfig = config.redis
 
   //domain
-  lazy val vegetableService: VegetableService = new VegetableService {
-    override type F[_] = Id[_]
-    def vegetableRepository: VegetableRepository[Id] = vegetableRepository
-    def resourceIORunner: ResourceIORunner[Id]       = redisResourceIORunner
-  }
-
+  lazy val vegetableService: VegetableService[Nothing] = wire[VegetableService[Id]]
   //controller
   def controllerComponents: ControllerComponents
   lazy val vegetableController: VegetableController = wire[VegetableController]
 
   // repository
   lazy val vegetableRepository: VegetableRepository[Id] = wire[VegetableRepositoryOnRedis]
+  // lazy val vegetableRepository: VegetableRepository[ConnectionIO] = ??? // これを渡すとコンパイルエラーになるのでヨシ
 }

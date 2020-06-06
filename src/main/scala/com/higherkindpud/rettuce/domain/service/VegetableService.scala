@@ -5,11 +5,10 @@ import com.higherkindpud.rettuce.domain.repository.{ResourceIORunner, VegetableR
 
 import scala.concurrent.Future
 
-trait VegetableService {
-
-  type F[_]
-  def vegetableRepository: VegetableRepository[F]
-  def resourceIORunner: ResourceIORunner[F]
+class VegetableService[-F[_]](
+    vegetableRepository: VegetableRepository[F],
+    resourceIORunner: ResourceIORunner[F]
+) {
 
   def getAll(): Future[List[Vegetable]] = {
     val a: F[List[Vegetable]]      = vegetableRepository.getAll()
