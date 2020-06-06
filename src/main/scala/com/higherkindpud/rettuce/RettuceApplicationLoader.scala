@@ -30,15 +30,7 @@ class RettuceApplicationBase(context: Context)
   override lazy val httpErrorHandler: HttpErrorHandler =
     new JsonHttpErrorHandler(environment, devContext.map(_.sourceMapper))
 
-  lazy val router: Router = {
-    // add the prefix string in local scope for the Routes constructor
-
-    val prefix: String = "/"
-    // unusedでwarnが出るけど消したら動かないので気を付ける
-    // (;clean ;compileしたらコンパイル落ちることが確認できる)
-    // TODO: build.sbtでいい感じにwarn出ないように
-
-    wire[Routes]
-  }
+  val prefix: String      = "/"
+  lazy val router: Router = wire[Routes]
 
 }
