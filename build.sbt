@@ -10,12 +10,23 @@ lazy val commonSettings = Seq(
   scalafmtOnCompile := true
 )
 
+lazy val playSettings = {
+  // [warn] .../rettuce/src/main/resources/routes: Unused import
+  // コンパイル時の上記のような警告を消す
+  // cf. https://github.com/playframework/playframework/issues/7382
+  import play.sbt.routes.RoutesKeys
+  Seq(
+    RoutesKeys.routesImport := Seq.empty
+  )
+}
+
 lazy val root = (project in file("."))
   .enablePlugins(PlayScala)
   .disablePlugins(PlayLayoutPlugin)
   .settings(
     name := "rettuce",
     commonSettings,
+    playSettings,
     libraryDependencies += scalaTest % Test,
     libraryDependencies ++= circe,
     libraryDependencies += jedis,
