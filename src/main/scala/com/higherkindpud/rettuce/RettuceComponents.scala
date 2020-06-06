@@ -2,7 +2,6 @@ package com.higherkindpud.rettuce
 
 import com.higherkindpud.rettuce.config.RettuceConfig
 import com.higherkindpud.rettuce.controller.VegetableController
-import com.higherkindpud.rettuce.domain.repository.VegetableRepository
 import com.higherkindpud.rettuce.domain.service.VegetableService
 import com.higherkindpud.rettuce.infra.db.MySQLComponents
 import com.higherkindpud.rettuce.infra.redis.RedisComponents
@@ -26,5 +25,5 @@ trait RettuceComponents
   def controllerComponents: ControllerComponents
   lazy val vegetableController: VegetableController = wire[VegetableController]
 
-  lazy val vegetableRepository: VegetableRepository = wire[VegetableRepositoryOnRedis]
+  lazy val vegetableRepository: VegetableBoughtRepository = wire[VegetableRepositoryOnRedis]
 }

@@ -5,7 +5,7 @@ import play.api.mvc._
 import akka.util.ByteString
 import io.circe.{Decoder, Json, parser}
 import com.higherkindpud.rettuce.controller.util.CirceWritable._
-import com.higherkindpud.rettuce.domain.entity.{Sale, Vegetable}
+import com.higherkindpud.rettuce.domain.entity.{Report, Vegetable}
 import javax.inject.Singleton
 import play.api.mvc.{AbstractController, ControllerComponents}
 import com.higherkindpud.rettuce.domain.service.SaleService
@@ -31,9 +31,9 @@ object SaleController {
   import io.circe.generic.semiauto.{deriveEncoder, deriveDecoder}
   case class Response(str: String)
   val responseEncoder: Encoder[Response]       = deriveEncoder
-  val vegetableEncoder: Encoder[Sale]          = deriveEncoder
-  implicit val vegetableDecoder: Decoder[Sale] = deriveDecoder
-  val decodeJsonToSale: String => Option[Sale] = parser.parse(_).flatMap(_.as[Sale]).toOption
+  val vegetableEncoder: Encoder[Report]          = deriveEncoder
+  implicit val vegetableDecoder: Decoder[Report] = deriveDecoder
+  val decodeJsonToSale: String => Option[Report] = parser.parse(_).flatMap(_.as[Report]).toOption
 
 
 }

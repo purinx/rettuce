@@ -2,11 +2,10 @@ package com.higherkindpud.rettuce.domain.entity
 
 import java.time.Instant
 
+// 確定済みの売り上げ in MySQL
 case class Sale(
-    id: Int,
-    name: String,
-    price: Int,
-    quantity: Int,
-    amount: Int,
+    vegetableId: Int,
+    quantity: Int, // 個数
+    amount: Int,   // 売り上げ金額
     date: Instant
 )

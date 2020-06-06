@@ -3,7 +3,8 @@ package com.higherkindpud.rettuce.infra.redis
 import cats.Id
 import com.higherkindpud.rettuce.domain.entity.Vegetable
 import com.higherkindpud.rettuce.domain.repository.VegetableRepository
-import com.higherkindpud.rettuce.infra.redis.common.{Cache, DefaultRedisCache}
+import com.higherkindpud.rettuce.infra.redis.common.Cache
+import com.higherkindpud.rettuce.infra.redis.DefaultRedisCache
 import io.circe._
 import io.circe.syntax._
 import io.circe.generic.semiauto._

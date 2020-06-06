@@ -1,3 +1,3 @@
 package com.higherkindpud.rettuce.domain.entity
 
-case class Vegetable(name: String, price: Int, bought: Int)
+case class Vegetable(name: String, price: Int)
