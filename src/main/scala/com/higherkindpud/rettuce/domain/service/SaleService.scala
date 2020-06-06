@@ -1,13 +1,25 @@
 package com.higherkindpud.rettuce.domain.service
 
+import cats.Id
 import com.higherkindpud.rettuce.domain.entity.{Report, Summary}
-import com.higherkindpud.rettuce.domain.repository.ReportRepository
+import com.higherkindpud.rettuce.domain.repository.{ReportRepository, SaleRepository, TransactionRunner}
+import com.higherkindpud.rettuce.infra.db.DoobieTransactionRunner
+import scala.concurrent.ExecutionContext
+import scala.concurrent.Future
 
-class SaleService(
-    saleRepository: ReportRepository
+class SaleService[F[_]](
+    reportRepository: ReportRepository[Id],
+    saleRepository: SaleRepository[F],
+    transactionRunner: TransactionRunner[Future],
 ) {
   import SaleService._
-  def settle: SettleResult = SettleResult(saleRepository.settle)
+  def settle: Future[SettleResult] = {
+    val reports = reportRepository.settle
+    for {
+      _ <- transactionRunner.run(saleRepository.bulkInsert(reports))
+    } yield SettleResult(reports)
+  }
+
 }
 
 object SaleService {

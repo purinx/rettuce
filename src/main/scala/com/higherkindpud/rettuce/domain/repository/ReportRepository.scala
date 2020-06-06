@@ -8,4 +8,6 @@ trait ReportRepository[F[_]] {
 
   def settle: F[List[Report]]
 
+  def save(report: Report): F[Unit]
+
 }

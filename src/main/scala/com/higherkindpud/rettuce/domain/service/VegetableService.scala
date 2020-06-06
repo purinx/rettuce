@@ -1,30 +1,29 @@
 package com.higherkindpud.rettuce.domain.service
 
-import com.higherkindpud.rettuce.domain.entity.Vegetable
+import cats.Id
+import com.higherkindpud.rettuce.domain.entity.{Report, Vegetable}
 import com.higherkindpud.rettuce.domain.repository.{ReportRepository, TransactionRunner, VegetableRepository}
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
-class VegetableService[F[_], G[_]] (
-                               vegetableRepository: VegetableRepository[F],
-                               reportRepository: ReportRepository[G],
-                               transactionRunner: TransactionRunner[F]
-) {
+class VegetableService[F[_], G[_]](
+    vegetableRepository: VegetableRepository[F],
+    reportRepository: ReportRepository[Id],
+    transactionRunner: TransactionRunner[F]
+)(implicit defaultExecutionContext: ExecutionContext) {
 
   def getSaleByName(name: String): Future[Option[Vegetable]] = {
-    val a: F[Option[Vegetable]] = vegetableRepository.getByName(name) // IOっぽいやつ
+    val a: F[Option[Vegetable]]      = vegetableRepository.getByName(name) // IOっぽいやつ
     val b: Future[Option[Vegetable]] = transactionRunner.run(a)
     b
   }
 
-  def save(vegetable: Vegetable): Unit = vegetableRepository.save(vegetable)
+  def create(vegetable: Vegetable): Unit = vegetableRepository.create(vegetable)
 
-  def buy(name: String, quantity: Int): Either[] = {
-    val sale = getByName(name)
-    save(Vegetable(name, sale.quantiry))
+  def incrementQuantity(name: String, quantity: Int): Unit = {
+    val report = reportRepository.getByName(name)
+    reportRepository.save(Report(name, report.quantity + quantity))
   }
 }
 
-object VegetableService {
-
-}
+object VegetableService {}
