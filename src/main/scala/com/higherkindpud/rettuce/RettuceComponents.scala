@@ -26,7 +26,7 @@ trait RettuceComponents extends MySQLComponents {
   lazy val vegetableController: VegetableController = wire[VegetableController]
 
   //repository
-  lazy val pool: JedisPool   = new JedisPool(config.redis.host, config.redis.port)
+  lazy val jedisPool: JedisPool   = new JedisPool(config.redis.host, config.redis.port)
   lazy val defaultRedisCache = wire[DefaultRedisCache]
 
   lazy val vegetableRepository: VegetableRepository = wire[VegetableRepositoryOnRedis]

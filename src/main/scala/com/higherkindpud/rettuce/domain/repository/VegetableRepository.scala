@@ -8,4 +8,6 @@ trait VegetableRepository {
 
   def save(vegetable: Vegetable): Unit
 
+  def buy(vegetableName: String, quantity: Int): Unit
+
 }
