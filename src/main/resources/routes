@@ -5,4 +5,4 @@
 GET /apple     com.higherkindpud.rettuce.controller.VegetableController.apple()
 POST /banana   com.higherkindpud.rettuce.controller.VegetableController.banana()
 POST /vegetables com.higherkindpud.rettuce.controller.VegetableController.save()
-GET /vegetables com.higherkindpud.rettuce.controller.VegetableController.getByName(name: String)
+GET /vegetables/:name com.higherkindpud.rettuce.controller.VegetableController.getByName(name: String)

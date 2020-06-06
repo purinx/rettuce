@@ -41,24 +41,6 @@ class VegetableController(
     Action(parse.byteString) { implicit request: Request[ByteString] =>
       val vegetableOpt: Option[Vegetable] = decodeJsonToVegetable(request.body.utf8String)
 
-      // 1
-      vegetableOpt
-        .map { vegetable =>
-          vegetableService.save(vegetable)
-          Ok(vegetableEncoder(vegetable))
-        }
-        .getOrElse(BadRequest(""))
-
-      // 2
-      vegetableOpt match {
-        case None => BadRequest("")
-        case Some(vegetable) => {
-          vegetableService.save(vegetable)
-          Ok(vegetableEncoder(vegetable))
-        }
-      }
-
-      // 3
       val a: Either[Result, Result] = for {
         vegetable <- vegetableOpt.toRight(BadRequest(""))
       } yield {
