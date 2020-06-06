@@ -5,16 +5,18 @@ import java.util.concurrent.{ExecutorService, Executors}
 import cats.effect.{Blocker, IO, Resource}
 import com.higherkindpud.rettuce.config.MySQLConfig
 import doobie.hikari.HikariTransactor
+import com.higherkindpud.rettuce.domain.repository.TransactionRunner
 
 import scala.concurrent.ExecutionContext
 
 trait MySQLComponents {
 
   def mySQLConfig: MySQLConfig
+
   private lazy val executorService: ExecutorService = Executors.newFixedThreadPool(mySQLConfig.threads)
   private lazy val executionContext                 = ExecutionContext.fromExecutorService(executorService)
   private implicit lazy val cs                      = IO.contextShift(executionContext)
-  val transactor: Resource[IO, HikariTransactor[IO]] =
+  lazy val transactor: Resource[IO, HikariTransactor[IO]] =
     for {
       // ce <- ExecutionContexts.fixedThreadPool[IO](mySQLConfig.threads) // our connect EC
       be <- Blocker[IO] // our blocking EC
@@ -27,6 +29,9 @@ trait MySQLComponents {
         be                                                                             // execute JDBC operations here
       )
     } yield xa
+
+  lazy val doobieTransactionRunner: TransactionRunner[ConnectionIO] = new DoobieTransactionRunner(transactor)
+
 }
 
 object MySQLComponents {
