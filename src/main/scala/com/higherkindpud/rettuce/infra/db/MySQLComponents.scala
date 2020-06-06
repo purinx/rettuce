@@ -12,19 +12,19 @@ trait MySQLComponents {
 
   def mySQLConfig: MySQLConfig
   private lazy val executorService: ExecutorService = Executors.newFixedThreadPool(mySQLConfig.threads)
-  private lazy val executionContext = ExecutionContext.fromExecutorService(executorService)
-  private implicit lazy val cs                                   = IO.contextShift(executionContext)
+  private lazy val executionContext                 = ExecutionContext.fromExecutorService(executorService)
+  private implicit lazy val cs                      = IO.contextShift(executionContext)
   val transactor: Resource[IO, HikariTransactor[IO]] =
     for {
       // ce <- ExecutionContexts.fixedThreadPool[IO](mySQLConfig.threads) // our connect EC
       be <- Blocker[IO] // our blocking EC
       xa <- HikariTransactor.newHikariTransactor[IO](
-        "com.mysql.cj.jdbc.Driver",                                     // driver classname
+        "com.mysql.cj.jdbc.Driver",                                                    // driver classname
         s"jdbc:mysql://${mySQLConfig.host}:${mySQLConfig.port}/${mySQLConfig.dbname}", // connect URL
-        mySQLConfig.username,                                                // username
-        mySQLConfig.password,                                                // password
-        executionContext,                                                             // await connection here
-        be                                                              // execute JDBC operations here
+        mySQLConfig.username,                                                          // username
+        mySQLConfig.password,                                                          // password
+        executionContext,                                                              // await connection here
+        be                                                                             // execute JDBC operations here
       )
     } yield xa
 }
