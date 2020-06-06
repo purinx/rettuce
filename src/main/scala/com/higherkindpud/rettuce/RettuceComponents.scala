@@ -6,19 +6,19 @@ import pureconfig.ConfigSource
 import pureconfig.generic.auto._
 
 import play.api.mvc.ControllerComponents
-
 import com.higherkindpud.rettuce.config.RettuceConfig
 import com.higherkindpud.rettuce.controller.VegetableController
 import com.higherkindpud.rettuce.domain.repository.VegetableRepository
 import com.higherkindpud.rettuce.domain.service.VegetableService
+import com.higherkindpud.rettuce.infra.db.MySQLComponents
 import com.higherkindpud.rettuce.infra.redis.VegetableRepositoryOnRedis
 import com.higherkindpud.rettuce.infra.redis.common.DefaultRedisCache
-
 import redis.clients.jedis.JedisPool
 
-trait RettuceComponents {
+trait RettuceComponents extends MySQLComponents {
   lazy val config: RettuceConfig =
     ConfigSource.fromConfig(ConfigFactory.load()).loadOrThrow[RettuceConfig]
+  lazy val mySQLConfig = config.mysql
 
   //domain
   lazy val vegetableService = wire[VegetableService]

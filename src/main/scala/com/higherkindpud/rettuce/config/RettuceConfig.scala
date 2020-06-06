@@ -1,10 +1,19 @@
 package com.higherkindpud.rettuce.config
 
 case class RettuceConfig(
-    redis: Redis
+    redis: RedisConfig,
+    mysql: MySQLConfig
 )
 
-case class Redis(
+case class RedisConfig(
     host: String,
     port: Int
+)
+
+case class MySQLConfig(
+    host: String,
+    port: Int,
+    dbname: String,
+    username: String,
+    password: String
 )
