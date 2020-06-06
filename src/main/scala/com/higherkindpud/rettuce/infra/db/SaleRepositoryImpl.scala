@@ -6,6 +6,6 @@ import com.higherkindpud.rettuce.domain.repository.SaleRepository
 class SaleRepositoryImpl extends SaleRepository {
 
   override def settle: List[Sale] = {
-    val vegetables =
+    val vegetables = ???
   }
 }
