@@ -9,9 +9,9 @@ import com.higherkindpud.rettuce.domain.repository.{
   ResourceIORunner,
   VegetableRepository
 }
-import com.higherkindpud.rettuce.domain.repository.IOTypes.{RDB, KVS}
 
 import scala.concurrent.{ExecutionContext, Future}
+import java.time.Clock
 
 trait SaleService {
   import SaleService._
@@ -29,20 +29,24 @@ object SaleService {
   }
 }
 
-class SaleServiceWithIO[F[_]: RDB, G[_]: KVS](
+/**
+  * F[_]: RDB, G[_]: KVS
+  */
+class SaleServiceWithIO[F[_], G[_]](
     saleRepository: SaleRepository[F],
-    vegetableRepository: VegetableRepository[F],
     rdbRunner: ResourceIORunner[F],
+    vegetableRepository: VegetableRepository[G],
     reportRepository: ReportRepository[G],
-    kvsRunner: ResourceIORunner[G]
+    kvsRunner: ResourceIORunner[G],
+    clock: Clock
 )(implicit defaultExecutionContext: ExecutionContext)
     extends SaleService {
   import SaleService._
 
   def settle: Future[SettleResult] = {
-    val date = Instant.now()
+    val date: Instant = clock.instant()
     for {
-      vegetables <- rdbRunner.run(vegetableRepository.getAll)
+      vegetables <- kvsRunner.run(vegetableRepository.getAll)
       reportOpts <- Future.sequence {
         vegetables.map(v => kvsRunner.run(reportRepository.getByName(v.name)))
       }
