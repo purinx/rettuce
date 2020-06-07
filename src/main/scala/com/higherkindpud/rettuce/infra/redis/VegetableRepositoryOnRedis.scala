@@ -23,7 +23,7 @@ class VegetableRepositoryOnRedis(
     .withHash("vegetables")
     .mapValue(decoder, encoder)
 
-  override def getAll(): IO[List[Vegetable]] = ???
+  override def fetchAll(): IO[List[Vegetable]] = ???
 
   override def getByName(name: String): IO[Option[Vegetable]] = IO(vegetableCache.get(name))
 
