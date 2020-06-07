@@ -16,7 +16,7 @@ class TestDoobieResourceIORunner(
     mySQLConfig: MySQLConfig
 ) extends ResourceIORunner[ConnectionIO] {
   lazy val transactor: Resource[IO, Transactor[IO]] = {
-    lazy val hiakriDataSource: HikariDataSource = {
+    lazy val hikariDataSource: HikariDataSource = {
       val config = new HikariConfig()
       config.setDriverClassName("com.mysql.cj.jdbc.Driver")
       config.setJdbcUrl(s"jdbc:mysql://${mySQLConfig.host}:${mySQLConfig.port}/${mySQLConfig.dbname}")
@@ -29,7 +29,7 @@ class TestDoobieResourceIORunner(
       be <- Blocker[IO]                                                // our blocking EC
     } yield {
       implicit val cs: ContextShift[IO] = IO.contextShift(ec)
-      HikariTransactor(hiakriDataSource, ec, be)
+      HikariTransactor(hikariDataSource, ec, be)
     }
   }
 
