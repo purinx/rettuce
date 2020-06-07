@@ -2,8 +2,7 @@ package com.higherkindpud.rettuce.domain.service
 
 import java.time.Instant
 
-import cats.Id
-import com.higherkindpud.rettuce.domain.entity.{Report, Sale, Summary}
+import com.higherkindpud.rettuce.domain.entity.{Sale, Summary}
 import com.higherkindpud.rettuce.domain.repository.{
   ReportRepository,
   SaleRepository,
@@ -12,30 +11,11 @@ import com.higherkindpud.rettuce.domain.repository.{
 }
 
 import scala.concurrent.{ExecutionContext, Future}
+import java.time.Clock
 
-class SaleService[F[_]](
-    reportRepository: ReportRepository[Id],
-    saleRepository: SaleRepository[F],
-    resourceIORunner: ResourceIORunner[F],
-    vegetableRepository: VegetableRepository[F]
-)(implicit defaultExecutionContext: ExecutionContext) {
+trait SaleService {
   import SaleService._
-
-  def settle: Future[SettleResult] = {
-    val date = Instant.now()
-    val salesF = for {
-      vegetables <- resourceIORunner.run(vegetableRepository.getAll)
-    } yield vegetables.map(v => {
-      reportRepository.getByName(v.name) match {
-        case None         => Sale(v.id, 0, 0, date)
-        case Some(report) => Sale(v.id, report.quantity, report.quantity * v.price, date)
-      }
-    })
-    salesF.map { sales =>
-      resourceIORunner.run(saleRepository.bulkInsert(sales))
-      SettleResult(sales)
-    }
-  }
+  def settle: Future[SettleResult]
 }
 
 object SaleService {
@@ -46,5 +26,35 @@ object SaleService {
       // Summary(date, amount)
       ???
     }
+  }
+}
+
+/**
+  * F[_]: RDB, G[_]: KVS
+  */
+class SaleServiceWithIO[F[_], G[_]](
+    saleRepository: SaleRepository[F],
+    rdbRunner: ResourceIORunner[F],
+    vegetableRepository: VegetableRepository[G],
+    reportRepository: ReportRepository[G],
+    kvsRunner: ResourceIORunner[G],
+    clock: Clock
+)(implicit defaultExecutionContext: ExecutionContext)
+    extends SaleService {
+  import SaleService._
+
+  def settle: Future[SettleResult] = {
+    val date: Instant = clock.instant()
+    for {
+      vegetables <- kvsRunner.run(vegetableRepository.getAll)
+      reportOpts <- Future.sequence {
+        vegetables.map(v => kvsRunner.run(reportRepository.getByName(v.name)))
+      }
+      sales = (vegetables zip reportOpts).map {
+        case (v, r) =>
+          Sale(v.id, r.map(_.quantity).getOrElse(0), r.map(_.quantity * v.price).getOrElse(0), date)
+      }
+      _ <- rdbRunner.run(saleRepository.bulkInsert(sales))
+    } yield SettleResult(sales)
   }
 }

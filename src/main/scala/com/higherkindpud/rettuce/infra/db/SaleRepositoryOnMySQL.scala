@@ -11,6 +11,7 @@ class SaleRepositoryOnMySQL extends SaleRepository[ConnectionIO] {
   def fetchAll(): ConnectionIO[List[Sale]]                 = ???
   def findByName(name: String): ConnectionIO[Option[Sale]] = ???
   def save(sale: Sale): ConnectionIO[Unit]                 = ???
+  def bulkInsert(sales: List[Sale]): ConnectionIO[Unit]    = ???
 }
 
 object SaleRepository {
