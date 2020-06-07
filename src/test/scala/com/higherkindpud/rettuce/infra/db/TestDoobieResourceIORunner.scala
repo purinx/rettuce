@@ -4,7 +4,7 @@ import cats.effect.{Blocker, ContextShift, IO, Resource}
 import com.higherkindpud.rettuce.config.MySQLConfig
 import com.higherkindpud.rettuce.domain.repository.ResourceIORunner
 import com.zaxxer.hikari.{HikariConfig, HikariDataSource}
-import doobie.free.ConnectionIO
+import doobie.free.{ConnectionIO, connection}
 import doobie.hikari.HikariTransactor
 import doobie.implicits._
 import doobie.util.ExecutionContexts
@@ -12,9 +12,10 @@ import doobie.util.transactor.Transactor
 
 import scala.concurrent.Future
 
-class TestDoobieResourceIORunner() extends ResourceIORunner[ConnectionIO] {
+class TestDoobieResourceIORunner(
+    mySQLConfig: MySQLConfig
+) extends ResourceIORunner[ConnectionIO] {
   // ここで resource を読み込みたい
-  def mySQLConfig: MySQLConfig
 
   lazy val transactor: Resource[IO, Transactor[IO]] = {
     lazy val hiakriDataSource: HikariDataSource = {
@@ -33,11 +34,13 @@ class TestDoobieResourceIORunner() extends ResourceIORunner[ConnectionIO] {
       HikariTransactor(hiakriDataSource, ec, be)
     }
   }
-  override def run[A](io: ConnectionIO[A]): Future[A] = {
-    transactor.use(xa => {
-      io.transact(xa)
-      Transactor.after.set(xa, HC.roolback)
-    })
-  }
 
+  override def run[A](io: ConnectionIO[A]): Future[A] = {
+    transactor
+      .use(xa => {
+        Transactor.after.set(xa, connection.rollback)
+        io.transact(xa)
+      })
+      .unsafeToFuture()
+  }
 }
