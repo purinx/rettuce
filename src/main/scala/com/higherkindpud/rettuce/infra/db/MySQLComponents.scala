@@ -1,7 +1,5 @@
 package com.higherkindpud.rettuce.infra.db
 
-import java.util.concurrent.{ExecutorService, Executors}
-
 import cats.effect.{Blocker, IO, Resource, ContextShift}
 import com.higherkindpud.rettuce.config.MySQLConfig
 import doobie.hikari.HikariTransactor
@@ -10,8 +8,6 @@ import com.zaxxer.hikari.{HikariConfig, HikariDataSource}
 import doobie.free.connection.ConnectionIO
 import doobie.util.transactor.Transactor
 import doobie.util.ExecutionContexts
-
-import scala.concurrent.ExecutionContext
 
 trait MySQLComponents {
 
@@ -37,11 +33,4 @@ trait MySQLComponents {
 
   lazy val doobieTransactionRunner: ResourceIORunner[ConnectionIO] = new DoobieResourceIORunner(transactor)
 
-}
-
-object MySQLComponents {
-  class DataBaseExecutionContext(underlying: ExecutionContext) extends ExecutionContext {
-    override def execute(runnable: Runnable): Unit     = underlying.execute(runnable)
-    override def reportFailure(cause: Throwable): Unit = underlying.reportFailure(cause)
-  }
 }
