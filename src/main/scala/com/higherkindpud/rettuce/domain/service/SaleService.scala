@@ -2,16 +2,18 @@ package com.higherkindpud.rettuce.domain.service
 
 import java.time.Instant
 
-import com.higherkindpud.rettuce.domain.entity.{Sale, Summary}
+import com.higherkindpud.rettuce.domain.entity.{Report, Sale, Summary}
 import com.higherkindpud.rettuce.domain.repository.{
   ReportRepository,
-  SaleRepository,
   ResourceIORunner,
+  SaleRepository,
   VegetableRepository
 }
 
 import scala.concurrent.{ExecutionContext, Future}
 import java.time.Clock
+
+import cats.Monad
 
 trait SaleService {
   import SaleService._
@@ -27,15 +29,21 @@ object SaleService {
       ???
     }
   }
+
+  // from, to: EpochMilli
+  case class DateSpan(from: Long, to: Long) {
+    def fromAsInstant: Instant = Instant.ofEpochMilli(from)
+    def toAsInstant: Instant   = Instant.ofEpochMilli(to)
+  }
 }
 
 /**
   * F[_]: RDB, G[_]: KVS
   */
-class SaleServiceWithIO[F[_], G[_]](
+class SaleServiceWithIO[F[_]: Monad, G[_]: Monad](
     saleRepository: SaleRepository[F],
     rdbRunner: ResourceIORunner[F],
-    vegetableRepository: VegetableRepository[G],
+    vegetableRepository: VegetableRepository[F],
     reportRepository: ReportRepository[G],
     kvsRunner: ResourceIORunner[G],
     clock: Clock
@@ -43,16 +51,17 @@ class SaleServiceWithIO[F[_], G[_]](
     extends SaleService {
   import SaleService._
 
+  def getReportPadded(name: String): Future[Report] =
+    kvsRunner.run {
+      Monad[G].map(reportRepository.getByName(name))(_.getOrElse(Report(name, 0)))
+    }
   def settle: Future[SettleResult] = {
     val date: Instant = clock.instant()
     for {
-      vegetables <- kvsRunner.run(vegetableRepository.getAll)
-      reportOpts <- Future.sequence {
-        vegetables.map(v => kvsRunner.run(reportRepository.getByName(v.name)))
-      }
-      sales = (vegetables zip reportOpts).map {
-        case (v, r) =>
-          Sale(v.id, r.map(_.quantity).getOrElse(0), r.map(_.quantity * v.price).getOrElse(0), date)
+      vegetables <- rdbRunner.run(vegetableRepository.getAll)
+      reports    <- Future.sequence { vegetables.map(v => getReportPadded(v.name)) }
+      sales = (vegetables zip reports).map {
+        case (v, r) => Sale(v.id, r.quantity, r.quantity * v.price, date)
       }
       _ <- rdbRunner.run(saleRepository.bulkInsert(sales))
     } yield SettleResult(sales)
