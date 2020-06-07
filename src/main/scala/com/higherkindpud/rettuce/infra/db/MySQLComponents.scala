@@ -2,7 +2,7 @@ package com.higherkindpud.rettuce.infra.db
 
 import java.util.concurrent.{ExecutorService, Executors}
 
-import cats.effect.{Blocker, IO, Resource}
+import cats.effect.{Blocker, IO, Resource, ContextShift}
 import com.higherkindpud.rettuce.config.MySQLConfig
 import doobie.hikari.HikariTransactor
 import com.higherkindpud.rettuce.domain.repository.ResourceIORunner
@@ -17,9 +17,6 @@ trait MySQLComponents {
 
   def mySQLConfig: MySQLConfig
 
-  private lazy val executorService: ExecutorService = Executors.newFixedThreadPool(mySQLConfig.threads)
-  private lazy val executionContext                 = ExecutionContext.fromExecutorService(executorService)
-  private implicit lazy val cs                      = IO.contextShift(executionContext)
   lazy val transactor: Resource[IO, Transactor[IO]] = {
     lazy val hiakriDataSource: HikariDataSource = {
       val config = new HikariConfig()
@@ -30,9 +27,12 @@ trait MySQLComponents {
       new HikariDataSource(config)
     }
     for {
-      ce <- ExecutionContexts.fixedThreadPool[IO](mySQLConfig.threads) // our connect EC
+      ec <- ExecutionContexts.fixedThreadPool[IO](mySQLConfig.threads) // our connect EC
       be <- Blocker[IO]                                                // our blocking EC
-    } yield HikariTransactor(hiakriDataSource, ce, be)
+    } yield {
+      implicit val cs: ContextShift[IO] = IO.contextShift(ec)
+      HikariTransactor(hiakriDataSource, ec, be)
+    }
   }
 
   lazy val doobieTransactionRunner: ResourceIORunner[ConnectionIO] = new DoobieResourceIORunner(transactor)
