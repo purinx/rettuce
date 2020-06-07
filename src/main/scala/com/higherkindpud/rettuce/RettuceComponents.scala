@@ -11,7 +11,7 @@ import com.typesafe.config.ConfigFactory
 import play.api.mvc.ControllerComponents
 import pureconfig.ConfigSource
 import pureconfig.generic.auto._
-import cats.Id
+import cats.effect.IO
 import com.higherkindpud.rettuce.domain.repository.{VegetableRepository, ReportRepository, SaleRepository}
 import scala.concurrent.ExecutionContext
 import com.higherkindpud.rettuce.domain.service.{SaleService, SaleServiceWithIO}
@@ -28,14 +28,14 @@ trait RettuceComponents extends MySQLComponents with RedisComponents {
   //domain
   lazy val clock: Clock = Clock.systemUTC()
   implicit def executionContext: ExecutionContext
-  lazy val vegetableService: VegetableService = wire[VegetableServiceWithIO[Id]]
-  lazy val saleService: SaleService           = wire[SaleServiceWithIO[ConnectionIO, Id]]
+  lazy val vegetableService: VegetableService = wire[VegetableServiceWithIO[IO]]
+  lazy val saleService: SaleService           = wire[SaleServiceWithIO[ConnectionIO, IO]]
   //controller
   def controllerComponents: ControllerComponents
   lazy val vegetableController: VegetableController = wire[VegetableController]
 
   // repository
-  lazy val vegetableRepository: VegetableRepository[Id] = wire[VegetableRepositoryOnRedis]
-  lazy val reportRepository: ReportRepository[Id]       = ??? // FIXME
+  lazy val vegetableRepository: VegetableRepository[IO] = wire[VegetableRepositoryOnRedis]
+  lazy val reportRepository: ReportRepository[IO]       = ??? // FIXME
   lazy val saleRepository: SaleRepository[ConnectionIO] = wire[SaleRepositoryOnMySQL]
 }
