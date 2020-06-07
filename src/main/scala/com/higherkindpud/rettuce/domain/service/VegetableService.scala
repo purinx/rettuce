@@ -5,10 +5,14 @@ import com.higherkindpud.rettuce.domain.repository.{ResourceIORunner, VegetableR
 
 import scala.concurrent.Future
 
-class VegetableService[+F[_]](
+trait VegetableService {
+  def getAll(): Future[List[Vegetable]]
+}
+
+class VegetableServiceWithIO[F[_]](
     vegetableRepository: VegetableRepository[F],
     resourceIORunner: ResourceIORunner[F]
-) {
+) extends VegetableService {
 
   def getAll(): Future[List[Vegetable]] = {
     val a: F[List[Vegetable]]      = vegetableRepository.getAll()
