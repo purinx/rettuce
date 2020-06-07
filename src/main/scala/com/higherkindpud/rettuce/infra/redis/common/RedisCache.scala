@@ -14,6 +14,15 @@ abstract class RedisCache(pool: JedisPool) extends Cache[String, String] {
   }
 }
 
+/**
+  * DefaultRedisCacheのget, mget, getAll, set, mset, deleteは
+  * これから派生したRedisCacheWithHashには影響しないが、
+  * flushのみ派生したRedisCacheWithHashの内容も削除する。
+  *
+  * DefaultRedisCacheのみ使うのであれば問題ないが、
+  * RedisCacheWithHashを利用するのであればDefaultRedisCacheはwithHashとflush以外の操作は
+  * 行わないといいと思う
+  */
 class DefaultRedisCache(pool: JedisPool) extends RedisCache(pool) {
 
   override def get(key: String): Option[String] = {
@@ -25,6 +34,10 @@ class DefaultRedisCache(pool: JedisPool) extends RedisCache(pool) {
     (keyList zip valuesWithNull).collect {
       case (key, value) if value != null => key -> value
     }.toMap
+  }
+  override def getAll(): Map[String, String] = {
+    val keys: Set[String] = withJedis(_.keys("*").asScala.toSet)
+    mget(keys)
   }
   override def set(key: String, value: String): Unit = {
     withJedis(_.set(key, value))
@@ -56,6 +69,9 @@ class RedisCacheWithHash(pool: JedisPool, hash: String) extends RedisCache(pool)
     (keyList zip valuesWithNull).collect {
       case (key, value) if value != null => key -> value
     }.toMap
+  }
+  override def getAll(): Map[String, String] = {
+    withJedis(_.hgetAll(hash)).asScala.toMap
   }
   override def set(key: String, value: String): Unit = {
     withJedis(_.hset(hash, key, value))
