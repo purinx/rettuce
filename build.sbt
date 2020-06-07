@@ -33,5 +33,4 @@ lazy val root = (project in file("."))
     libraryDependencies ++= macwire,
     libraryDependencies += jedis,
     libraryDependencies += pureconfig,
-    libraryDependencies += scalaTest % Test
   )
