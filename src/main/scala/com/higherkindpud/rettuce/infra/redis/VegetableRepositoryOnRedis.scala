@@ -1,15 +1,17 @@
 package com.higherkindpud.rettuce.infra.redis
 
+import cats.effect.IO
 import com.higherkindpud.rettuce.domain.entity.Vegetable
 import com.higherkindpud.rettuce.domain.repository.VegetableRepository
-import com.higherkindpud.rettuce.infra.redis.common.{Cache, DefaultRedisCache}
+import com.higherkindpud.rettuce.infra.redis.common.Cache
+import com.higherkindpud.rettuce.infra.redis.common.DefaultRedisCache
 import io.circe._
 import io.circe.syntax._
 import io.circe.generic.semiauto._
 
 class VegetableRepositoryOnRedis(
     defaultRedisCache: DefaultRedisCache
-) extends VegetableRepository {
+) extends VegetableRepository[IO] {
 
   private implicit val circeDecoder: Decoder[Vegetable] = deriveDecoder
   private implicit val circeEncoder: Encoder[Vegetable] = deriveEncoder
@@ -21,7 +23,10 @@ class VegetableRepositoryOnRedis(
     .withHash("vegetables")
     .mapValue(decoder, encoder)
 
-  override def getByName(name: String): Option[Vegetable] = vegetableCache.get(name)
+  override def getAll(): IO[List[Vegetable]] = ???
 
-  override def save(vegetable: Vegetable) = vegetableCache.set(vegetable.name, vegetable)
+  override def getByName(name: String): IO[Option[Vegetable]] = IO(vegetableCache.get(name))
+
+  override def create(vegetable: Vegetable): IO[Unit] = IO(vegetableCache.set(vegetable.name, vegetable))
+
 }

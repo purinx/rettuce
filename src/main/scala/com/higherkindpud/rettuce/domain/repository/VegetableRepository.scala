@@ -2,10 +2,12 @@ package com.higherkindpud.rettuce.domain.repository
 
 import com.higherkindpud.rettuce.domain.entity.Vegetable
 
-trait VegetableRepository {
+trait VegetableRepository[F[_]] {
 
-  def getByName(name: String): Option[Vegetable]
+  def getAll(): F[List[Vegetable]]
 
-  def save(vegetable: Vegetable): Unit
+  def getByName(name: String): F[Option[Vegetable]]
+
+  def create(vegetable: Vegetable): F[Unit]
 
 }

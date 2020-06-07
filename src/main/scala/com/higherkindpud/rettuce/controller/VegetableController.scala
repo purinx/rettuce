@@ -22,7 +22,7 @@ class VegetableController(
 
   def apple() =
     Action { implicit request: Request[AnyContent] =>
-      val json: Json = vegetableEncoder(Vegetable("apple", 500))
+      val json: Json = vegetableEncoder(Vegetable(42, "apple", 500))
       Ok(json)
     }
 
@@ -44,7 +44,7 @@ class VegetableController(
       val a: Either[Result, Result] = for {
         vegetable <- vegetableOpt.toRight(BadRequest(""))
       } yield {
-        vegetableService.save(vegetable)
+        // vegetableService.save(vegetable)
         Ok(vegetableEncoder(vegetable))
       }
       a.merge
@@ -53,7 +53,8 @@ class VegetableController(
 
   def getByName(name: String) =
     Action { implicit request: Request[AnyContent] =>
-      val vegetable = vegetableService.getByName(name).getOrElse(throw new RuntimeException("not found"))
+      // val vegetable = vegetableService.getByName(name).getOrElse(throw new RuntimeException("not found"))
+      val vegetable = ???
 
       Ok(vegetableEncoder(vegetable))
     }

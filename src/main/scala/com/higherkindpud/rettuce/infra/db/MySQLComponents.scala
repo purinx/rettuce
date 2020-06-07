@@ -1,37 +1,36 @@
 package com.higherkindpud.rettuce.infra.db
 
-import java.util.concurrent.{ExecutorService, Executors}
-
-import cats.effect.{Blocker, IO, Resource}
+import cats.effect.{Blocker, IO, Resource, ContextShift}
 import com.higherkindpud.rettuce.config.MySQLConfig
 import doobie.hikari.HikariTransactor
-
-import scala.concurrent.ExecutionContext
+import com.higherkindpud.rettuce.domain.repository.ResourceIORunner
+import com.zaxxer.hikari.{HikariConfig, HikariDataSource}
+import doobie.free.connection.ConnectionIO
+import doobie.util.transactor.Transactor
+import doobie.util.ExecutionContexts
 
 trait MySQLComponents {
 
   def mySQLConfig: MySQLConfig
-  private lazy val executorService: ExecutorService = Executors.newFixedThreadPool(mySQLConfig.threads)
-  private lazy val executionContext                 = ExecutionContext.fromExecutorService(executorService)
-  private implicit lazy val cs                      = IO.contextShift(executionContext)
-  val transactor: Resource[IO, HikariTransactor[IO]] =
-    for {
-      // ce <- ExecutionContexts.fixedThreadPool[IO](mySQLConfig.threads) // our connect EC
-      be <- Blocker[IO] // our blocking EC
-      xa <- HikariTransactor.newHikariTransactor[IO](
-        "com.mysql.cj.jdbc.Driver",                                                    // driver classname
-        s"jdbc:mysql://${mySQLConfig.host}:${mySQLConfig.port}/${mySQLConfig.dbname}", // connect URL
-        mySQLConfig.username,                                                          // username
-        mySQLConfig.password,                                                          // password
-        executionContext,                                                              // await connection here
-        be                                                                             // execute JDBC operations here
-      )
-    } yield xa
-}
 
-object MySQLComponents {
-  class DataBaseExecutionContext(underlying: ExecutionContext) extends ExecutionContext {
-    override def execute(runnable: Runnable): Unit     = underlying.execute(runnable)
-    override def reportFailure(cause: Throwable): Unit = underlying.reportFailure(cause)
+  lazy val transactor: Resource[IO, Transactor[IO]] = {
+    lazy val hiakriDataSource: HikariDataSource = {
+      val config = new HikariConfig()
+      config.setDriverClassName("com.mysql.cj.jdbc.Driver")
+      config.setJdbcUrl(s"jdbc:mysql://${mySQLConfig.host}:${mySQLConfig.port}/${mySQLConfig.dbname}")
+      config.setUsername(mySQLConfig.username)
+      config.setPassword(mySQLConfig.password)
+      new HikariDataSource(config)
+    }
+    for {
+      ec <- ExecutionContexts.fixedThreadPool[IO](mySQLConfig.threads) // our connect EC
+      be <- Blocker[IO]                                                // our blocking EC
+    } yield {
+      implicit val cs: ContextShift[IO] = IO.contextShift(ec)
+      HikariTransactor(hiakriDataSource, ec, be)
+    }
   }
+
+  lazy val doobieTransactionRunner: ResourceIORunner[ConnectionIO] = new DoobieResourceIORunner(transactor)
+
 }
