@@ -15,8 +15,6 @@ import scala.concurrent.Future
 class TestDoobieResourceIORunner(
     mySQLConfig: MySQLConfig
 ) extends ResourceIORunner[ConnectionIO] {
-  // ここで resource を読み込みたい
-
   lazy val transactor: Resource[IO, Transactor[IO]] = {
     lazy val hiakriDataSource: HikariDataSource = {
       val config = new HikariConfig()
