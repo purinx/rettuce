@@ -2,19 +2,25 @@ package com.higherkindpud.rettuce.domain.service
 
 import cats.Id
 import com.higherkindpud.rettuce.domain.entity.{Report, Vegetable}
-import com.higherkindpud.rettuce.domain.repository.{ReportRepository, TransactionRunner, VegetableRepository}
+import com.higherkindpud.rettuce.domain.repository.{ReportRepository, ResourceIORunner, VegetableRepository}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class VegetableService[F[_], G[_]](
+trait VegetableService {
+  def getSaleByName(name: String): Future[Option[Vegetable]]
+  def create(vegetable: Vegetable): Unit
+  def incrementQuantity(name: String, quantity: Int): Unit
+}
+
+class VegetableServiceWithIO[F[_]](
     vegetableRepository: VegetableRepository[F],
     reportRepository: ReportRepository[Id],
-    transactionRunner: TransactionRunner[F]
-)(implicit defaultExecutionContext: ExecutionContext) {
+    resourceIORunner: ResourceIORunner[F]
+)(implicit defaultExecutionContext: ExecutionContext) extends VegetableService {
 
   def getSaleByName(name: String): Future[Option[Vegetable]] = {
     val a: F[Option[Vegetable]]      = vegetableRepository.getByName(name) // IOっぽいやつ
-    val b: Future[Option[Vegetable]] = transactionRunner.run(a)
+    val b: Future[Option[Vegetable]] = resourceIORunner.run(a)
     b
   }
 

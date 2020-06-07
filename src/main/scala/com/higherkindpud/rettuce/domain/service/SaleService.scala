@@ -7,7 +7,7 @@ import com.higherkindpud.rettuce.domain.entity.{Report, Sale, Summary}
 import com.higherkindpud.rettuce.domain.repository.{
   ReportRepository,
   SaleRepository,
-  TransactionRunner,
+  ResourceIORunner,
   VegetableRepository
 }
 
@@ -16,7 +16,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class SaleService[F[_]](
     reportRepository: ReportRepository[Id],
     saleRepository: SaleRepository[F],
-    transactionRunner: TransactionRunner[F],
+    resourceIORunner: ResourceIORunner[F],
     vegetableRepository: VegetableRepository[F]
 )(implicit defaultExecutionContext: ExecutionContext) {
   import SaleService._
@@ -24,7 +24,7 @@ class SaleService[F[_]](
   def settle: Future[SettleResult] = {
     val date = Instant.now()
     val salesF = for {
-      vegetables <- transactionRunner.run(vegetableRepository.getAll)
+      vegetables <- resourceIORunner.run(vegetableRepository.getAll)
     } yield vegetables.map(v => {
       reportRepository.getByName(v.name) match {
         case None         => Sale(v.id, 0, 0, date)
@@ -32,7 +32,7 @@ class SaleService[F[_]](
       }
     })
     salesF.map { sales =>
-      transactionRunner.run(saleRepository.bulkInsert(sales))
+      resourceIORunner.run(saleRepository.bulkInsert(sales))
       SettleResult(sales)
     }
   }
@@ -41,9 +41,10 @@ class SaleService[F[_]](
 object SaleService {
   case class SettleResult(sales: List[Sale]) {
     def getSummary: Summary = {
-      val amount = sales.map(_.amount).sum // sum は部分関数
-      val date   = sales.head.date
-      Summary(date, amount)
+      // val amount = sales.map(_.amount).sum // sum は部分関数
+      // val date   = sales.head.date
+      // Summary(date, amount)
+      ???
     }
   }
 }

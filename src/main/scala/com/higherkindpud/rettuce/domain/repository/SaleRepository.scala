@@ -9,11 +9,7 @@ trait SaleRepository[F[_]] {
 
   def fetchAll: F[List[Sale]]
 
-  def update(sale: Sale): F[Unit]
-
-  def create(createRequest: CreateRequest): F[Unit]
-
-  def bulkInsert(sales: List[Sale]): F[Unit]
+  def save(sale: Sale): F[Unit]
 }
 
 object SaleRepository {

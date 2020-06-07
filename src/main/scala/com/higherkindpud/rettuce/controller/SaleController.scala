@@ -21,7 +21,7 @@ class SaleController(
   // 前回精算以降の売り上げ精算
   def settle() =
     Action(parse.byteString) { implicit request: Request[ByteString] =>
-
+      ???
     }
 }
 
@@ -30,10 +30,9 @@ object SaleController {
   import io.circe.Encoder
   import io.circe.generic.semiauto.{deriveEncoder, deriveDecoder}
   case class Response(str: String)
-  val responseEncoder: Encoder[Response]       = deriveEncoder
+  val responseEncoder: Encoder[Response]         = deriveEncoder
   val vegetableEncoder: Encoder[Report]          = deriveEncoder
   implicit val vegetableDecoder: Decoder[Report] = deriveDecoder
   val decodeJsonToSale: String => Option[Report] = parser.parse(_).flatMap(_.as[Report]).toOption
-
 
 }
