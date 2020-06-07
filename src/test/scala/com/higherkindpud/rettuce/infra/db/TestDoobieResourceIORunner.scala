@@ -4,7 +4,7 @@ import cats.effect.{Blocker, ContextShift, IO, Resource}
 import com.higherkindpud.rettuce.config.MySQLConfig
 import com.higherkindpud.rettuce.domain.repository.ResourceIORunner
 import com.zaxxer.hikari.{HikariConfig, HikariDataSource}
-import doobie.free.ConnectionIO
+import doobie.free.{ConnectionIO, connection}
 import doobie.hikari.HikariTransactor
 import doobie.implicits._
 import doobie.util.ExecutionContexts
@@ -35,8 +35,8 @@ class TestDoobieResourceIORunner() extends ResourceIORunner[ConnectionIO] {
   }
   override def run[A](io: ConnectionIO[A]): Future[A] = {
     transactor.use(xa => {
+      Transactor.after.set(xa, connection.rollback)
       io.transact(xa)
-      Transactor.after.set(xa, HC.roolback)
     })
   }
 
