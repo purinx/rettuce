@@ -1,7 +1,6 @@
 package com.higherkindpud.rettuce.domain.repository
 
-import com.higherkindpud.rettuce.domain.entity.{Report, Sale}
-import com.higherkindpud.rettuce.domain.repository.SaleRepository.CreateRequest
+import com.higherkindpud.rettuce.domain.entity.Sale
 
 trait SaleRepository[F[_]] {
 

@@ -11,23 +11,22 @@ trait VegetableService {
   def incrementQuantity(name: String, quantity: Int): Future[Unit]
 }
 
-class VegetableServiceWithIO[F[_]](
+class VegetableServiceWithIO[F[_], G[_]](
     vegetableRepository: VegetableRepository[F],
-    reportRepository: ReportRepository[F],
-    runner: ResourceIORunner[F]
+    rdbRunner: ResourceIORunner[F],
+    reportRepository: ReportRepository[G],
+    kvsRunner: ResourceIORunner[G]
 )(implicit defaultExecutionContext: ExecutionContext)
     extends VegetableService {
 
   def getSaleByName(name: String): Future[Option[Vegetable]] = {
-    val a: F[Option[Vegetable]]      = vegetableRepository.getByName(name) // IOっぽいやつ
-    val b: Future[Option[Vegetable]] = runner.run(a)
-    b
+    rdbRunner.run { vegetableRepository.getByName(name) }
   }
 
-  def create(vegetable: Vegetable): Future[Unit] = runner.run(vegetableRepository.create(vegetable))
+  def create(vegetable: Vegetable): Future[Unit] = rdbRunner.run(vegetableRepository.create(vegetable))
 
   def incrementQuantity(name: String, quantity: Int): Future[Unit] = {
-    val reportOptAsnyc: Future[Option[Report]] = runner.run(reportRepository.getByName(name))
+    val reportOptAsnyc: Future[Option[Report]] = kvsRunner.run(reportRepository.getByName(name))
     reportOptAsnyc.map { reportOpt =>
       reportOpt.foreach { report =>
         reportRepository.save(Report(name, report.quantity + quantity))
@@ -35,5 +34,3 @@ class VegetableServiceWithIO[F[_]](
     }
   }
 }
-
-object VegetableService {}
