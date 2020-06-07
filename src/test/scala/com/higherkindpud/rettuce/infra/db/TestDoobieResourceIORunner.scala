@@ -12,9 +12,7 @@ import doobie.util.transactor.Transactor
 
 import scala.concurrent.Future
 
-class TestDoobieResourceIORunner() extends ResourceIORunner[ConnectionIO] {
-  // ここで resource を読み込みたい
-  def mySQLConfig: MySQLConfig
+class TestDoobieResourceIORunner(mySQLConfig: MySQLConfig) extends ResourceIORunner[ConnectionIO] {
 
   lazy val transactor: Resource[IO, Transactor[IO]] = {
     lazy val hiakriDataSource: HikariDataSource = {
@@ -34,10 +32,12 @@ class TestDoobieResourceIORunner() extends ResourceIORunner[ConnectionIO] {
     }
   }
   override def run[A](io: ConnectionIO[A]): Future[A] = {
-    transactor.use(xa => {
-      Transactor.after.set(xa, connection.rollback)
-      io.transact(xa)
-    })
+    transactor
+      .use(xa => {
+        Transactor.after.set(xa, connection.rollback)
+        io.transact(xa)
+      })
+      .unsafeToFuture()
   }
 
 }
