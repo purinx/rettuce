@@ -1,6 +1,6 @@
 package com.higherkindpud.rettuce.domain.repository
 
-import com.higherkindpud.rettuce.domain.entity.{Report, Summary}
+import com.higherkindpud.rettuce.domain.entity.Report
 
 trait ReportRepository[F[_]] {
 

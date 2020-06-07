@@ -2,14 +2,14 @@ package com.higherkindpud.rettuce.domain.service
 
 import java.time.Instant
 
-import cats.Id
-import com.higherkindpud.rettuce.domain.entity.{Report, Sale, Summary}
+import com.higherkindpud.rettuce.domain.entity.{Sale, Summary}
 import com.higherkindpud.rettuce.domain.repository.{
   ReportRepository,
   SaleRepository,
   ResourceIORunner,
   VegetableRepository
 }
+import com.higherkindpud.rettuce.domain.repository.IOTypes.{RDB, KVS}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -29,28 +29,28 @@ object SaleService {
   }
 }
 
-class SaleServiceWithIO[F[_]](
-    reportRepository: ReportRepository[Id],
+class SaleServiceWithIO[F[_]: RDB, G[_]: KVS](
     saleRepository: SaleRepository[F],
-    resourceIORunner: ResourceIORunner[F],
-    vegetableRepository: VegetableRepository[F]
+    vegetableRepository: VegetableRepository[F],
+    rdbRunner: ResourceIORunner[F],
+    reportRepository: ReportRepository[G],
+    kvsRunner: ResourceIORunner[G]
 )(implicit defaultExecutionContext: ExecutionContext)
     extends SaleService {
   import SaleService._
 
   def settle: Future[SettleResult] = {
     val date = Instant.now()
-    val salesF: Future[List[Sale]] = for {
-      vegetables <- resourceIORunner.run(vegetableRepository.getAll)
-    } yield vegetables.map(v => {
-      reportRepository.getByName(v.name) match {
-        case None         => Sale(v.id, 0, 0, date)
-        case Some(report) => Sale(v.id, report.quantity, report.quantity * v.price, date)
+    for {
+      vegetables <- rdbRunner.run(vegetableRepository.getAll)
+      reportOpts <- Future.sequence {
+        vegetables.map(v => kvsRunner.run(reportRepository.getByName(v.name)))
       }
-    })
-    salesF.map { sales =>
-      resourceIORunner.run(saleRepository.bulkInsert(sales))
-      SettleResult(sales)
-    }
+      sales = (vegetables zip reportOpts).map {
+        case (v, r) =>
+          Sale(v.id, r.map(_.quantity).getOrElse(0), r.map(_.quantity * v.price).getOrElse(0), date)
+      }
+      _ <- rdbRunner.run(saleRepository.bulkInsert(sales))
+    } yield SettleResult(sales)
   }
 }
