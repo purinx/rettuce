@@ -1,19 +1,45 @@
 package com.higherkindpud.rettuce.domain.service
 
-import com.higherkindpud.rettuce.domain.entity.{Report, Summary}
-import com.higherkindpud.rettuce.domain.repository.ReportRepository
+import java.time.Instant
 
 import cats.Id
+import com.higherkindpud.rettuce.domain.entity.{Report, Sale, Summary}
+import com.higherkindpud.rettuce.domain.repository.{
+  ReportRepository,
+  SaleRepository,
+  ResourceIORunner,
+  VegetableRepository
+}
 
-class SaleService(
-    saleRepository: ReportRepository[Id]
-) {
+import scala.concurrent.{ExecutionContext, Future}
+
+class SaleService[F[_]](
+    reportRepository: ReportRepository[Id],
+    saleRepository: SaleRepository[F],
+    resourceIORunner: ResourceIORunner[F],
+    vegetableRepository: VegetableRepository[F]
+)(implicit defaultExecutionContext: ExecutionContext) {
   import SaleService._
-  def settle: SettleResult = SettleResult(saleRepository.settle)
+
+  def settle: Future[SettleResult] = {
+    val date = Instant.now()
+    val salesF = for {
+      vegetables <- resourceIORunner.run(vegetableRepository.getAll)
+    } yield vegetables.map(v => {
+      reportRepository.getByName(v.name) match {
+        case None         => Sale(v.id, 0, 0, date)
+        case Some(report) => Sale(v.id, report.quantity, report.quantity * v.price, date)
+      }
+    })
+    salesF.map { sales =>
+      resourceIORunner.run(saleRepository.bulkInsert(sales))
+      SettleResult(sales)
+    }
+  }
 }
 
 object SaleService {
-  case class SettleResult(sales: List[Report]) {
+  case class SettleResult(sales: List[Sale]) {
     def getSummary: Summary = {
       // val amount = sales.map(_.amount).sum // sum は部分関数
       // val date   = sales.head.date

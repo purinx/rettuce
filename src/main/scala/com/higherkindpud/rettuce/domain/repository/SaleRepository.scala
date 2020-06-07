@@ -1,6 +1,7 @@
 package com.higherkindpud.rettuce.domain.repository
 
-import com.higherkindpud.rettuce.domain.entity.Sale
+import com.higherkindpud.rettuce.domain.entity.{Report, Sale}
+import com.higherkindpud.rettuce.domain.repository.SaleRepository.CreateRequest
 
 trait SaleRepository[F[_]] {
 
@@ -12,5 +13,5 @@ trait SaleRepository[F[_]] {
 }
 
 object SaleRepository {
-  case class SaveRequest(vegetableName: Int, quantity: Int, amount: Int)
+  case class CreateRequest(vegetableName: Int, quantity: Int, amount: Int)
 }

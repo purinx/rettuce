@@ -1,23 +1,35 @@
 package com.higherkindpud.rettuce.domain.service
 
-import com.higherkindpud.rettuce.domain.entity.Vegetable
-import com.higherkindpud.rettuce.domain.repository.{ResourceIORunner, VegetableRepository}
+import cats.Id
+import com.higherkindpud.rettuce.domain.entity.{Report, Vegetable}
+import com.higherkindpud.rettuce.domain.repository.{ReportRepository, ResourceIORunner, VegetableRepository}
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 trait VegetableService {
-  def getAll(): Future[List[Vegetable]]
+  def getSaleByName(name: String): Future[Option[Vegetable]]
+  def create(vegetable: Vegetable): Unit
+  def incrementQuantity(name: String, quantity: Int): Unit
 }
 
 class VegetableServiceWithIO[F[_]](
     vegetableRepository: VegetableRepository[F],
+    reportRepository: ReportRepository[Id],
     resourceIORunner: ResourceIORunner[F]
-) extends VegetableService {
+)(implicit defaultExecutionContext: ExecutionContext) extends VegetableService {
 
-  def getAll(): Future[List[Vegetable]] = {
-    val a: F[List[Vegetable]]      = vegetableRepository.getAll()
-    val b: Future[List[Vegetable]] = resourceIORunner.run(a)
+  def getSaleByName(name: String): Future[Option[Vegetable]] = {
+    val a: F[Option[Vegetable]]      = vegetableRepository.getByName(name) // IOっぽいやつ
+    val b: Future[Option[Vegetable]] = resourceIORunner.run(a)
     b
   }
 
+  def create(vegetable: Vegetable): Unit = vegetableRepository.create(vegetable)
+
+  def incrementQuantity(name: String, quantity: Int): Unit = {
+    val report = reportRepository.getByName(name)
+    reportRepository.save(Report(name, report.quantity + quantity))
+  }
 }
+
+object VegetableService {}
