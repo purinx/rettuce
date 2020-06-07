@@ -13,6 +13,8 @@ import pureconfig.ConfigSource
 import pureconfig.generic.auto._
 import cats.Id
 import com.higherkindpud.rettuce.domain.repository.VegetableRepository
+import com.higherkindpud.rettuce.domain.repository.ReportRepository
+import scala.concurrent.ExecutionContext
 
 trait RettuceComponents extends MySQLComponents with RedisComponents {
   lazy val config: RettuceConfig =
@@ -21,6 +23,7 @@ trait RettuceComponents extends MySQLComponents with RedisComponents {
   lazy val redisConfig = config.redis
 
   //domain
+  implicit def executionContext: ExecutionContext
   lazy val vegetableService: VegetableService = wire[VegetableServiceWithIO[Id]]
   //controller
   def controllerComponents: ControllerComponents
@@ -28,4 +31,5 @@ trait RettuceComponents extends MySQLComponents with RedisComponents {
 
   // repository
   lazy val vegetableRepository: VegetableRepository[Id] = wire[VegetableRepositoryOnRedis]
+  lazy val reportRepository: ReportRepository[Id]       = ??? // FIXME
 }

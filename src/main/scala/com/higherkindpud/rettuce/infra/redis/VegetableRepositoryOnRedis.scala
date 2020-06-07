@@ -23,9 +23,10 @@ class VegetableRepositoryOnRedis(
     .withHash("vegetables")
     .mapValue(decoder, encoder)
 
-  // override def getByName(name: String): Option[Vegetable] = vegetableCache.get(name)
-
-  // override def save(vegetable: Vegetable) = vegetableCache.set(vegetable.name, vegetable)
-
   override def getAll(): List[Vegetable] = ???
+
+  override def getByName(name: String): Option[Vegetable] = vegetableCache.get(name)
+
+  override def create(vegetable: Vegetable): Unit = vegetableCache.set(vegetable.name, vegetable)
+
 }

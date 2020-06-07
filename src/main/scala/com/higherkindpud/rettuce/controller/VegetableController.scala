@@ -22,7 +22,7 @@ class VegetableController(
 
   def apple() =
     Action { implicit request: Request[AnyContent] =>
-      val json: Json = vegetableEncoder(Vegetable("apple", 500))
+      val json: Json = vegetableEncoder(Vegetable(42, "apple", 500))
       Ok(json)
     }
 

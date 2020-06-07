@@ -13,17 +13,34 @@ import com.higherkindpud.rettuce.domain.repository.{
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class SaleService[F[_]](
+trait SaleService {
+  import SaleService._
+  def settle: Future[SettleResult]
+}
+
+object SaleService {
+  case class SettleResult(sales: List[Sale]) {
+    def getSummary: Summary = {
+      // val amount = sales.map(_.amount).sum // sum は部分関数
+      // val date   = sales.head.date
+      // Summary(date, amount)
+      ???
+    }
+  }
+}
+
+class SaleServiceWithIO[F[_]](
     reportRepository: ReportRepository[Id],
     saleRepository: SaleRepository[F],
     resourceIORunner: ResourceIORunner[F],
     vegetableRepository: VegetableRepository[F]
-)(implicit defaultExecutionContext: ExecutionContext) {
+)(implicit defaultExecutionContext: ExecutionContext)
+    extends SaleService {
   import SaleService._
 
   def settle: Future[SettleResult] = {
     val date = Instant.now()
-    val salesF = for {
+    val salesF: Future[List[Sale]] = for {
       vegetables <- resourceIORunner.run(vegetableRepository.getAll)
     } yield vegetables.map(v => {
       reportRepository.getByName(v.name) match {
@@ -34,17 +51,6 @@ class SaleService[F[_]](
     salesF.map { sales =>
       resourceIORunner.run(saleRepository.bulkInsert(sales))
       SettleResult(sales)
-    }
-  }
-}
-
-object SaleService {
-  case class SettleResult(sales: List[Sale]) {
-    def getSummary: Summary = {
-      // val amount = sales.map(_.amount).sum // sum は部分関数
-      // val date   = sales.head.date
-      // Summary(date, amount)
-      ???
     }
   }
 }

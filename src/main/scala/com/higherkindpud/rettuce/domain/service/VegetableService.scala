@@ -16,7 +16,8 @@ class VegetableServiceWithIO[F[_]](
     vegetableRepository: VegetableRepository[F],
     reportRepository: ReportRepository[Id],
     resourceIORunner: ResourceIORunner[F]
-)(implicit defaultExecutionContext: ExecutionContext) extends VegetableService {
+)(implicit defaultExecutionContext: ExecutionContext)
+    extends VegetableService {
 
   def getSaleByName(name: String): Future[Option[Vegetable]] = {
     val a: F[Option[Vegetable]]      = vegetableRepository.getByName(name) // IOっぽいやつ
@@ -27,8 +28,10 @@ class VegetableServiceWithIO[F[_]](
   def create(vegetable: Vegetable): Unit = vegetableRepository.create(vegetable)
 
   def incrementQuantity(name: String, quantity: Int): Unit = {
-    val report = reportRepository.getByName(name)
-    reportRepository.save(Report(name, report.quantity + quantity))
+    val reportOpt: Option[Report] = reportRepository.getByName(name)
+    reportOpt.foreach { report =>
+      reportRepository.save(Report(name, report.quantity + quantity))
+    }
   }
 }
 
