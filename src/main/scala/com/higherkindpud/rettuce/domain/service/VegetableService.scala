@@ -6,8 +6,9 @@ import com.higherkindpud.rettuce.domain.repository.{ReportRepository, ResourceIO
 import scala.concurrent.{ExecutionContext, Future}
 
 trait VegetableService {
+
   def getSaleByName(name: String): Future[Option[Vegetable]]
-  def create(vegetable: Vegetable): Future[Unit]
+  def create(vegetable: Vegetable): Future[Long]
   def incrementQuantity(name: String, quantity: Int): Future[Unit]
 }
 
@@ -20,10 +21,13 @@ class VegetableServiceWithIO[F[_], G[_]](
     extends VegetableService {
 
   def getSaleByName(name: String): Future[Option[Vegetable]] = {
-    rdbRunner.run { vegetableRepository.getByName(name) }
+    rdbRunner.run { vegetableRepository.findByName(name) }
   }
 
-  def create(vegetable: Vegetable): Future[Unit] = rdbRunner.run(vegetableRepository.create(vegetable))
+  def create(vegetable: Vegetable): Future[Long] =
+    rdbRunner.run {
+      vegetableRepository.create(vegetable)
+    }
 
   def incrementQuantity(name: String, quantity: Int): Future[Unit] = {
     val reportOptAsnyc: Future[Option[Report]] = kvsRunner.run(reportRepository.getByName(name))

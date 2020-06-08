@@ -58,7 +58,7 @@ class SaleServiceWithIO[F[_]: Monad, G[_]: Monad](
   def settle: Future[SettleResult] = {
     val date: Instant = clock.instant()
     for {
-      vegetables <- rdbRunner.run(vegetableRepository.getAll)
+      vegetables <- rdbRunner.run(vegetableRepository.fetchAll())
       reports    <- Future.sequence { vegetables.map(v => getReportPadded(v.name)) }
       sales = (vegetables zip reports).map {
         case (v, r) => Sale(v.id, r.quantity, r.quantity * v.price, date)
