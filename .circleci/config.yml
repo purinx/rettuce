@@ -8,6 +8,17 @@ jobs:
     steps:
       - run: echo 'export ARTIFACT_BUILD=$CIRCLE_PROJECT_REPONAME-$CIRCLE_BUILD_NUM.zip' >> $BASH_ENV
       - run:
+          name: docker セットアップ
+          command: |
+            set -x
+            curl -L https://github.com/docker/compose/releases/download/1.25.3/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose
+            chmod +x /usr/local/bin/docker-compose
+      - run:
+          name: dockerコンテナ起動
+          command: |
+            set -x
+            docker-compose up -d
+      - run:
           name: sbt バイナリを取得
           command: |
             apt update && apt install -y curl
