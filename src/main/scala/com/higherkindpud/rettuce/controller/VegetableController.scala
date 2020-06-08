@@ -22,7 +22,7 @@ class VegetableController(
 
   def apple() =
     Action { implicit request: Request[AnyContent] =>
-      val json: Json = vegetableEncoder(Vegetable(42, "apple", 500))
+      val json: Json = vegetableEncoder(VegetableResponse("1", "apple", 500))
       Ok(json)
     }
 
@@ -44,8 +44,12 @@ class VegetableController(
       val a: Either[Result, Result] = for {
         vegetable <- vegetableOpt.toRight(BadRequest(""))
       } yield {
-        // vegetableService.save(vegetable)
-        Ok(vegetableEncoder(vegetable))
+        vegetableService.create(vegetable)
+        Ok(
+          vegetableEncoder(
+            VegetableResponse(vegetable.id.value.toString, vegetable.name, vegetable.price)
+          )
+        )
       }
       a.merge
 
@@ -62,13 +66,19 @@ class VegetableController(
 }
 
 object VegetableController {
+  case class VegetableRequest(name: String, price: Int)
 
+  case class VegetableResponse(id: String, name: String, price: Int)
   import io.circe.Encoder
   import io.circe.generic.semiauto.{deriveEncoder, deriveDecoder}
   case class Response(str: String)
-  val responseEncoder: Encoder[Response]            = deriveEncoder
-  val vegetableEncoder: Encoder[Vegetable]          = deriveEncoder
-  implicit val vegetableDecoder: Decoder[Vegetable] = deriveDecoder
+  val responseEncoder: Encoder[Response]                   = deriveEncoder
+  val vegetableEncoder: Encoder[VegetableResponse]         = deriveEncoder
+  implicit val vegetableDecoder: Decoder[VegetableRequest] = deriveDecoder
   val decodeJsonToVegetable: String => Option[Vegetable] =
-    parser.parse(_).flatMap(_.as[Vegetable]).toOption
+    parser
+      .parse(_)
+      .flatMap(_.as[VegetableRequest])
+      .toOption
+      .map(req => Vegetable.create(req.name, req.price))
 }
