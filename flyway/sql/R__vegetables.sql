@@ -2,7 +2,8 @@ CREATE DATABASE IF NOT EXISTS rettuce;
 USE rettuce;
 
 CREATE TABLE vegetables (
-    name varchar(40) PRIMARY KEY,
+    id int PRIMARY KEY AUTO_INCREMENT,
+    name varchar(40),
     price int NOT NULL,
     quantity_sold int NOT NULL DEFAULT 0,
     created_at TIMESTAMP DEFAULT current_timestamp
