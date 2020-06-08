@@ -1,14 +1,13 @@
 package com.higherkindpud.rettuce.infra.db
 
-import io.getquill.{idiom => _, _}
-import doobie.quill.DoobieContext
-import com.higherkindpud.rettuce.domain.entity.Vegetable
+import com.higherkindpud.rettuce.domain.entity.{Vegetable, VegetableId}
 import com.higherkindpud.rettuce.domain.repository.VegetableRepository
+import com.higherkindpud.rettuce.infra.db.schema.VegetableRecord
 import doobie.free.connection.ConnectionIO
-import doobie.implicits._
+import doobie.quill.DoobieContext
+import io.getquill.{idiom => _, _}
 
 class VegetableRepositoryOnMySQL extends VegetableRepository[ConnectionIO] {
-  import VegetableRepository._
 
   val dc = new DoobieContext.MySQL(SnakeCase)
   import dc._
@@ -16,28 +15,29 @@ class VegetableRepositoryOnMySQL extends VegetableRepository[ConnectionIO] {
   def fetchAll(): ConnectionIO[List[Vegetable]] =
     run {
       quote {
-        querySchema[Vegetable]("vegetables")
+        querySchema[VegetableRecord]("vegetables")
       }
-    }
+    }.map(_.map(_.toEntity))
 
-  def findById(id: Long): ConnectionIO[Option[Vegetable]] =
+  def findById(id: VegetableId): ConnectionIO[Option[Vegetable]] =
     run {
       quote {
-        querySchema[Vegetable]("vegetables").filter(_.id == lift(id))
+        querySchema[VegetableRecord]("vegetables").filter(_.id == lift(id.value.toString))
       }
-    }.map(_.headOption)
+    }.map(_.headOption.map(_.toEntity))
 
   def findByName(name: String): ConnectionIO[Option[Vegetable]] =
     run {
       quote {
-        querySchema[Vegetable]("vegetables").filter(_.name == lift(name))
+        querySchema[VegetableRecord]("vegetables").filter(_.name == lift(name))
       }
-    }.map(_.headOption)
+    }.map(_.headOption.map(_.toEntity))
 
-  def create(vegetable: CreateVegetable): ConnectionIO[Long] =
+  def create(vegetable: Vegetable): ConnectionIO[Long] =
     run {
       quote {
-        querySchema[Vegetable]("vegetables").insert(
+        querySchema[VegetableRecord]("vegetables").insert(
+          _.id    -> lift(vegetable.id.value.toString),
           _.name  -> lift(vegetable.name),
           _.price -> lift(vegetable.price)
         )

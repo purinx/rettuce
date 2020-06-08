@@ -2,19 +2,13 @@ package com.higherkindpud.rettuce.domain.service
 
 import com.higherkindpud.rettuce.domain.entity.{Report, Vegetable}
 import com.higherkindpud.rettuce.domain.repository.{ReportRepository, ResourceIORunner, VegetableRepository}
-import com.higherkindpud.rettuce.domain.service.VegetableService.CreateVegetable
 
 import scala.concurrent.{ExecutionContext, Future}
 
-object VegetableService {
-  case class CreateVegetable(name: String, price: Int)
-}
-
 trait VegetableService {
-  import VegetableService._
 
   def getSaleByName(name: String): Future[Option[Vegetable]]
-  def create(vegetable: CreateVegetable): Future[Long]
+  def create(vegetable: Vegetable): Future[Long]
   def incrementQuantity(name: String, quantity: Int): Future[Unit]
 }
 
@@ -30,11 +24,9 @@ class VegetableServiceWithIO[F[_], G[_]](
     rdbRunner.run { vegetableRepository.findByName(name) }
   }
 
-  def create(vegetable: CreateVegetable): Future[Long] =
+  def create(vegetable: Vegetable): Future[Long] =
     rdbRunner.run {
-      vegetableRepository.create {
-        VegetableRepository.CreateVegetable(vegetable.name, vegetable.price)
-      }
+      vegetableRepository.create(vegetable)
     }
 
   def incrementQuantity(name: String, quantity: Int): Future[Unit] = {
