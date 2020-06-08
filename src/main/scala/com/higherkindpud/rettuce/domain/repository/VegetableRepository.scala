@@ -11,8 +11,10 @@ trait VegetableRepository[F[_]] {
 
   def fetchAll(): F[List[Vegetable]]
 
-  def getByName(name: String): F[Option[Vegetable]]
+  def findById(id: Long): F[Option[Vegetable]]
 
-  def create(vegetable: CreateVegetable): F[Unit]
+  def findByName(name: String): F[Option[Vegetable]]
+
+  def create(vegetable: CreateVegetable): F[Long]
 
 }

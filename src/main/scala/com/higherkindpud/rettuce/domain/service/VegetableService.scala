@@ -14,7 +14,7 @@ trait VegetableService {
   import VegetableService._
 
   def getSaleByName(name: String): Future[Option[Vegetable]]
-  def create(vegetable: CreateVegetable): Future[Unit]
+  def create(vegetable: CreateVegetable): Future[Long]
   def incrementQuantity(name: String, quantity: Int): Future[Unit]
 }
 
@@ -27,10 +27,10 @@ class VegetableServiceWithIO[F[_], G[_]](
     extends VegetableService {
 
   def getSaleByName(name: String): Future[Option[Vegetable]] = {
-    rdbRunner.run { vegetableRepository.getByName(name) }
+    rdbRunner.run { vegetableRepository.findByName(name) }
   }
 
-  def create(vegetable: CreateVegetable): Future[Unit] =
+  def create(vegetable: CreateVegetable): Future[Long] =
     rdbRunner.run {
       vegetableRepository.create {
         VegetableRepository.CreateVegetable(vegetable.name, vegetable.price)

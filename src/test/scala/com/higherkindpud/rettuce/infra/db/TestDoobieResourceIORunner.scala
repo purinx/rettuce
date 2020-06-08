@@ -36,8 +36,9 @@ class TestDoobieResourceIORunner(
   override def run[A](io: ConnectionIO[A]): Future[A] = {
     transactor
       .use(xa => {
-        Transactor.after.set(xa, connection.rollback)
-        io.transact(xa)
+        io.transact {
+          Transactor.after.set(xa, connection.rollback)
+        }
       })
       .unsafeToFuture()
   }

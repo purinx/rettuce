@@ -9,7 +9,8 @@ CREATE TABLE vegetables (
     created_at TIMESTAMP DEFAULT current_timestamp
 );
 
-INSERT INTO vegetables (name, price) VALUES
-("rettuce", 300),
-("apple", 300),
-("pudding", 100);
+CREATE TABLE sales (
+    id int PRIMARY KEY,
+    amount int NOT NULL, -- yen
+    created_at timestamp DEFAULT current_timestamp
+);
