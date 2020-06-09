@@ -5,6 +5,7 @@ import com.higherkindpud.rettuce.domain.entity.Report
 import com.higherkindpud.rettuce.domain.repository.ReportRepository
 import com.higherkindpud.rettuce.infra.redis.common.{Cache, DefaultRedisCache}
 import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
+import io.circe.syntax._
 import io.circe.{Decoder, Encoder, parser}
 
 class ReportRepositoryOnRedis(
@@ -13,13 +14,18 @@ class ReportRepositoryOnRedis(
   private implicit val circeDecoder: Decoder[Report] = deriveDecoder
   private implicit val circeEncoder: Encoder[Report] = deriveEncoder
   private val decoder: String => Report =
-    parser.parse(_).flatMap(_.as[Report]).getOrElse(throw new RuntimeException("decode error"))
-  // private val encoder: Report => String = _.asJson.noSpaces
+    parser
+      .parse(_)
+      .flatMap(_.as[Report])
+      .getOrElse(throw new RuntimeException("decode error"))
+  private val encoder: Report => String = _.asJson.noSpaces
+  val reportCache: Cache[String, Report] = defaultRedisCache
+    .withHash("reports")
+    .mapValue(decoder, encoder)
 
-  // val vegetableCache: Cache[String, Report] = defaultRedisCache
-  //  .withHash("vegetables")
-  //  .mapValue(decoder, encoder)
-  def getByName(name: String): IO[Option[Report]] = ???
-  def getAll: IO[List[Report]]                    = ???
-  def save(report: Report): IO[Unit]              = ???
+  def getByName(name: String): IO[Option[Report]] = IO(reportCache.get(name))
+
+  def getAll: IO[List[Report]] = IO(reportCache.getAll()).map(_.toList.map(_._2))
+
+  def save(report: Report): IO[Unit] = IO(reportCache.set(report.name, report))
 }

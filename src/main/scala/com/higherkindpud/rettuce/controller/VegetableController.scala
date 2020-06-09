@@ -26,17 +26,6 @@ class VegetableController(
       Ok(json)
     }
 
-  def banana() =
-    Action(parse.byteString) { implicit request: Request[ByteString] =>
-      val str: String = request.body.utf8String // POSTのボディ
-      // これがあればあとはDecoderを定義すればなんとでもJsonを扱える
-
-      val response   = Response(str)
-      val json: Json = responseEncoder(response)
-
-      Ok(json)
-    }
-
   def save() =
     Action(parse.byteString) { implicit request: Request[ByteString] =>
       val vegetableOpt: Option[Vegetable] = decodeJsonToVegetable(request.body.utf8String)
@@ -52,7 +41,6 @@ class VegetableController(
         )
       }
       a.merge
-
     }
 
   def getByName(name: String) =
