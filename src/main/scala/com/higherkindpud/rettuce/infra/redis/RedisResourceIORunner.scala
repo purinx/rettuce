@@ -4,8 +4,8 @@ import com.higherkindpud.rettuce.domain.repository.ResourceIORunner
 import scala.concurrent.Future
 import cats.effect.IO
 
-object RedisResourceIORunner extends ResourceIORunner[IO] {
+object RedisResourceIORunner extends ResourceIORunner[RedisIO] {
 
-  override def run[A](io: IO[A]): Future[A] = Future.successful(io.unsafeRunSync())
+  override def run[A](io: RedisIO[A]): Future[A] = Future.successful(io.unsafeRunSync())
 
 }
